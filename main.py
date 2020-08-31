@@ -7,7 +7,7 @@ from time import sleep
 
 
 WEB_LINKS = {
-    "flashscore": "https://www.flashscore.com/"
+    "flashscore": "https://www.soccer24.com/"
 }
 
 #
@@ -24,5 +24,9 @@ driver.get(WEB_LINKS["flashscore"])
 
 while True:
     with suppress(Exception):
-        driver.find_element_by_css_selector('#live-table > div.tabs > div.tabs__group > div:nth-child(2) > div.tabs__text.tabs__text--long').click()
-        sleep(4)
+        driver.find_element_by_css_selector('.calendar__direction--tomorrow').click()
+        break
+
+sleep(2)
+html = driver.execute_script("return document.documentElement.outerHTML;")
+
