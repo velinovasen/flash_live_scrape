@@ -10,12 +10,11 @@ WEB_LINKS = {
     "flashscore": "https://www.soccer24.com/"
 }
 
-#
-#
-#          TO CONNECT THE DATABASE LATER
-#
-#
-
+connector = sqlite3.connect('games-db')
+cursor = connector.cursor()
+cursor.execute('DROP TABLE IF EXISTS allGames')
+cursor.execute('CREATE TABLE allGames(time TEXT, home_team TEXT, away_team TEXT,'
+               ' home_odd REAL, draw_odd REAL, away_odd REAL)')
 
 options = FirefoxOptions()
 options.headless = False
