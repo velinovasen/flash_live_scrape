@@ -16,6 +16,13 @@ class Volume:
 
     def get_volume(self):
 
+        # CONNECTING THE DATABASE
+        connector = sqlite3.connect('games-db')
+        cursor = connector.cursor()
+        cursor.execute('DROP TABLE IF EXISTS VolumeGames')
+        cursor.execute('CREATE TABLE VolumeGames(time TEXT, home_team TEXT, '
+                       'away_team TEXT, bet_sign INTEGER, odd REAL, volume REAL)')
+
         DAYS = {
             "Monday": "Pts,", "Tuesday": "Sal,", "Wednesday": "Çar,", "Thursday": "Per,",
             "Friday": "Cum,", "Saturday": "Cts,", "Sunday": "Pzr,"
@@ -23,6 +30,8 @@ class Volume:
         now = datetime.datetime.now().strftime("%A")
         today_tr = DAYS[now]
 
+        # TO ADD A FUNCTION THAT TAKES THE NEXT DAY TOO
+        # WE WANT TO BE ABLE TO CHECK FOR TODAY AND TOMORROWS VALUES
 
         # OPEN THE WEBSITE AND GET THE DATA
         options = ChromeOptions()
@@ -40,7 +49,11 @@ class Volume:
 
         for game in matches:
             elements = list(game)
+            print(elements)
             if today_tr in str(elements[1]):
+                # GET THE TIME
+
+
                 # GET THE TEAMS
                 tokens = str(elements[2])
                 teams_pattern = r'[o][n][g]\>(.+)\<\/[s][t][r]'
@@ -53,7 +66,6 @@ class Volume:
                 position = re.search(position_pattern, position_token)
                 final_bet = position.group(1)
 
-
                 # GET THE AMOUNT
                 amount_token = str(elements[5])
                 amount_pattern = r'[o][n][g]\>(.+)[ ][A-z]+'
@@ -62,3 +74,7 @@ class Volume:
                 self.CURRENT_VOLUME.append([home_team, away_team, final_bet, total_amount])
 
         return self.CURRENT_VOLUME
+
+
+scrp = Volume()
+scrp.get_volume()
