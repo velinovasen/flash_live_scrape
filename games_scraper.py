@@ -3,9 +3,13 @@ from selenium.webdriver import Firefox, FirefoxOptions
 import sqlite3
 import re
 from time import sleep
+from volume import Volume
 
 
 class Scraper:
+
+    volume = Volume()
+    CURRENT_VOLUME = volume.get_volume()
 
     WEB_LINKS = {
         "flashscore": "https://www.soccer24.com/"
@@ -32,12 +36,19 @@ class Scraper:
         matches = soup.find_all(class_=re.compile("event__match"))
         all_games = [list(game) for game in matches if 'event__match--scheduled' in str(game)]
 
+        # GET THE TEAMS WHO HAVE A LOT OF VOLUME
+        home_teams_with_volume = [el[0] for el in self.CURRENT_VOLUME]
+        away_teams_with_volume = [el[1] for el in self.CURRENT_VOLUME]
+        print(home_teams_with_volume)
+        print(away_teams_with_volume)
+
         # INSERT THE GAMES INTO THE DATABASE
         for game in all_games:
             game = game[1:]
             game.pop(3)
             items = {"time": "", "home": "", "away": "", "home_odd": "",
                      "draw_odd": "", "away_odd": ""}
+
             for element in game:
                 if "event__time" in str(element):
                     pattern = r'(\d+[:]\d{2})'
@@ -77,10 +88,14 @@ class Scraper:
                         items["away_odd"] = away_odd.group(1)
                     except AttributeError:
                         items["away_odd"] = "1.00"
+
             cursor.execute('INSERT INTO allGames(time, home_team, away_team, home_odd, draw_odd, away_odd) '
                            'VALUES (?, ?, ?, ?, ?, ?)', (items["time"], items["home"], items["away"],
                                                          items["home_odd"], items["draw_odd"], items["away_odd"]))
             connector.commit()
-
         driver.close()
         connector.close()
+
+
+scrp = Scraper()
+scrp.scrape()

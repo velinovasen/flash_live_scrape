@@ -26,7 +26,7 @@ class Volume:
 
         # OPEN THE WEBSITE AND GET THE DATA
         options = ChromeOptions()
-        options.headless = False
+        options.headless = True
         options.add_argument("--lang=en")
         driver = Chrome(executable_path='C://Windows/chromedriver.exe', options=options)
         driver.get(self.WEB_LINKS["football"])
@@ -61,6 +61,4 @@ class Volume:
                 total_amount = amount.group(1)
                 self.CURRENT_VOLUME.append([home_team, away_team, final_bet, total_amount])
 
-scrp = Volume()
-scrp.get_volume()
-print(scrp.CURRENT_VOLUME)
+        return self.CURRENT_VOLUME

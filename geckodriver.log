@@ -1221,3 +1221,20 @@ JavaScript warning: https://mc.yandex.ru/metrika/watch.js, line 54: WebGL warnin
 JavaScript warning: https://mc.yandex.ru/metrika/watch.js, line 54: Failed to create WebGL context: WebGL creation failed: 
 * Can't use WebGL in headless mode (https://bugzil.la/1375585).
 1598964817907	Marionette	INFO	Stopped listening on port 59533
+1598977103574	geckodriver	INFO	Listening on 127.0.0.1:62928
+1598977106639	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "-headless" "-foreground" "-no-remote" "-profile" "C:\\Users\\Asen\\AppData\\Local\\Temp\\rust_mozprofileaFYdWg"
+*** You are running in headless mode.
+JavaScript error: resource://gre/modules/XULStore.jsm, line 66: Error: Can't find profile directory.
+console.error: SearchCache: "_readCacheFile: Error reading cache file:" (new Error("", "(unknown module)"))
+1598977109508	Marionette	INFO	Listening on port 62939
+1598977109965	Marionette	WARN	TLS certificate errors will be ignored for this session
+JavaScript error: https://www.soccer24.com/res/_fs/build/mainPageScripts.9efcac9.js, line 1: TypeError: $(...).offset() is undefined
+1598977160596	geckodriver	INFO	Listening on 127.0.0.1:63038
+1598977163658	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "-headless" "-foreground" "-no-remote" "-profile" "C:\\Users\\Asen\\AppData\\Local\\Temp\\rust_mozprofile3EtZu3"
+*** You are running in headless mode.
+JavaScript error: resource://gre/modules/XULStore.jsm, line 66: Error: Can't find profile directory.
+console.error: SearchCache: "_readCacheFile: Error reading cache file:" (new Error("", "(unknown module)"))
+1598977166942	Marionette	INFO	Listening on port 63046
+1598977167277	Marionette	WARN	TLS certificate errors will be ignored for this session
+JavaScript error: https://www.soccer24.com/res/_fs/build/mainPageScripts.9efcac9.js, line 1: TypeError: $(...).offset() is undefined
+1598977187003	Marionette	INFO	Stopped listening on port 63046
