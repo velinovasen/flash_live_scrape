@@ -21,7 +21,7 @@ class Scraper:
 
         # OPEN THE WEBSITE AND GET THE DATA
         options = FirefoxOptions()
-        options.headless = False
+        options.headless = True
         driver = Firefox(options=options, executable_path='C://Windows/geckodriver.exe')
         driver.get(self.WEB_LINKS["flashscore"])
         sleep(2)
