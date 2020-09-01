@@ -83,3 +83,4 @@ class Scraper:
             connector.commit()
 
         driver.close()
+        connector.close()
