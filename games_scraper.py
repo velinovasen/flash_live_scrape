@@ -28,7 +28,7 @@ class Scraper:
         options.headless = True
         driver = Firefox(options=options, executable_path='C://Windows/geckodriver.exe')
         driver.get(self.WEB_LINKS["flashscore"])
-        sleep(2)
+        sleep(1)
         html = driver.execute_script("return document.documentElement.outerHTML;")
 
         # WORK WITH THE DATA AND GET THE GAMES

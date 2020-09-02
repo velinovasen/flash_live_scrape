@@ -22,16 +22,17 @@ class Volume:
                        'away_team TEXT, bet_sign INTEGER, odd REAL, volume REAL)')
 
         days_numbered = {
-            1: "Monday", 2: "Tuesday", 3: "Wednesday", 4: "Thursday",
-            5: "Friday", 6: "Saturday", 7: "Sunday"
+            1: "Pts,", 2: "Sal,", 3: "Çar,", 4: "Per,",
+            5: "Cum,", 6: "Cts,", 7: "Pzr,"
         }
 
         days = {
-            "Monday": "Pts,", "Tuesday": "Sal,", "Wednesday": "Çar,", "Thursday": "Per,",
-            "Friday": "Cum,", "Saturday": "Cts,", "Sunday": "Pzr,"
+            "Monday": 1, "Tuesday": 2, "Wednesday": 3, "Thursday": 4,
+            "Friday": 5, "Saturday": 6, "Sunday": 7
         }
         now = datetime.datetime.now().strftime("%A")
-        today_tr = days[now]
+        today_tr = days_numbered[days[now]]
+        tomorrow_tr = days_numbered[days[now] + 1]
 
         # TO ADD A FUNCTION THAT TAKES THE NEXT DAY TOO
         # WE WANT TO BE ABLE TO CHECK FOR TODAY AND TOMORROWS VALUES
@@ -53,7 +54,7 @@ class Volume:
         for game in matches:
             elements = list(game)
             #print(elements)
-            if today_tr in str(elements[1]):
+            if today_tr or tomorrow_tr in str(elements[1]):
                 # GET THE TIME
                 time_tokens = str(elements[1])
                 time_pattern = r'[ ](\d+[:]\d+)\<\/'
