@@ -8,8 +8,6 @@ import datetime
 
 class Volume:
 
-    CURRENT_VOLUME = []
-
     WEB_LINKS = {
         "football": "https://www.bahisanaliz14.com/avrupa-en-cok-oynanan-maclar/"
     }
@@ -23,12 +21,17 @@ class Volume:
         cursor.execute('CREATE TABLE VolumeGames(time TEXT, home_team TEXT, '
                        'away_team TEXT, bet_sign INTEGER, odd REAL, volume REAL)')
 
-        DAYS = {
+        days_numbered = {
+            1: "Monday", 2: "Tuesday", 3: "Wednesday", 4: "Thursday",
+            5: "Friday", 6: "Saturday", 7: "Sunday"
+        }
+
+        days = {
             "Monday": "Pts,", "Tuesday": "Sal,", "Wednesday": "Çar,", "Thursday": "Per,",
             "Friday": "Cum,", "Saturday": "Cts,", "Sunday": "Pzr,"
         }
         now = datetime.datetime.now().strftime("%A")
-        today_tr = DAYS[now]
+        today_tr = days[now]
 
         # TO ADD A FUNCTION THAT TAKES THE NEXT DAY TOO
         # WE WANT TO BE ABLE TO CHECK FOR TODAY AND TOMORROWS VALUES
@@ -49,32 +52,40 @@ class Volume:
 
         for game in matches:
             elements = list(game)
-            print(elements)
+            #print(elements)
             if today_tr in str(elements[1]):
                 # GET THE TIME
-
+                time_tokens = str(elements[1])
+                time_pattern = r'[ ](\d+[:]\d+)\<\/'
+                time_raw = re.search(time_pattern, time_tokens)
+                time = time_raw.group(1)
 
                 # GET THE TEAMS
-                tokens = str(elements[2])
+                team_tokens = str(elements[2])
                 teams_pattern = r'[o][n][g]\>(.+)\<\/[s][t][r]'
-                teams = re.search(teams_pattern, tokens)
+                teams = re.search(teams_pattern, team_tokens)
                 home_team, away_team = teams.group(1).split(' - ')
 
-                #GET THE BET POSITION
+                # GET THE BET POSITION
                 position_token = str(elements[3])
                 position_pattern = r'[s][p][a][n]\>[ ](\d{1})\<\/[d][i]'
                 position = re.search(position_pattern, position_token)
                 final_bet = position.group(1)
+
+                # GET THE ODD
+                odds_token = str(elements[4])
+                odds_pattern = r'[a][n]\>(\d+\.\d+)\<\/'
+                odds_raw = re.search(odds_pattern, odds_token)
+                odds = odds_raw.group(1)
 
                 # GET THE AMOUNT
                 amount_token = str(elements[5])
                 amount_pattern = r'[o][n][g]\>(.+)[ ][A-z]+'
                 amount = re.search(amount_pattern, amount_token)
                 total_amount = amount.group(1)
-                self.CURRENT_VOLUME.append([home_team, away_team, final_bet, total_amount])
 
-        return self.CURRENT_VOLUME
-
-
-scrp = Volume()
-scrp.get_volume()
+                cursor.execute('INSERT INTO VolumeGames(time, home_team, away_team, bet_sign,'
+                               ' odd, volume) VALUES (?, ?, ?, ?, ?, ?)',
+                               (time, home_team, away_team, final_bet, odds, total_amount))
+        connector.commit()
+        connector.close()

@@ -36,12 +36,6 @@ class Scraper:
         matches = soup.find_all(class_=re.compile("event__match"))
         all_games = [list(game) for game in matches if 'event__match--scheduled' in str(game)]
 
-        # GET THE TEAMS WHO HAVE A LOT OF VOLUME
-        home_teams_with_volume = [el[0] for el in self.CURRENT_VOLUME]
-        away_teams_with_volume = [el[1] for el in self.CURRENT_VOLUME]
-        print(home_teams_with_volume)
-        print(away_teams_with_volume)
-
         # INSERT THE GAMES INTO THE DATABASE
         for game in all_games:
             game = game[1:]
