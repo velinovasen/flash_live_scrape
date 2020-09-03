@@ -50,18 +50,19 @@ class Scraper:
                      "draw_odd": "", "away_odd": ""}
 
             for element in game:
+
                 if "event__time" in str(element):
                     pattern = r'(\d+[:]\d{2})'
                     time = re.search(pattern, str(element))
                     items["time"] = time.group()
 
                 elif "participant--home" in str(element):
-                    pattern = r'\"\>([A-z]+.+)\<\/'
+                    pattern = r'\"\>([A-z0-9]+.+)\<\/'
                     home_team = re.search(pattern, str(element))
                     items["home"] = home_team.group(1)
 
                 elif "participant--away" in str(element):
-                    pattern = r'\"\>([A-z]+.+)\<\/'
+                    pattern = r'\"\>([A-z0-9]+.+)\<\/'
                     away_team = re.search(pattern, str(element))
                     items["away"] = away_team.group(1)
 
