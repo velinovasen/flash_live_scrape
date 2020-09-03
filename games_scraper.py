@@ -30,16 +30,22 @@ class Scraper:
         driver.get(self.WEB_LINKS["flashscore"])
         sleep(1)
         html = driver.execute_script("return document.documentElement.outerHTML;")
+        driver.find_element_by_css_selector('.calendar__direction--tomorrow').click()
+        sleep(1)
+        html_tomorrow = driver.execute_script("return document.documentElement.outerHTML;")
 
         # WORK WITH THE DATA AND GET THE GAMES
         soup = bs4.BeautifulSoup(html, 'html.parser')
+        soup2 = bs4.BeautifulSoup(html_tomorrow, 'html.parser')
         matches = soup.find_all(class_=re.compile("event__match"))
+        matches_tomorrow = soup2.find_all(class_=re.compile("event__match"))
         all_games = [list(game) for game in matches if 'event__match--scheduled' in str(game)]
-
+        all_games_tomorrow = [list(game) for game in matches_tomorrow if 'event__match--scheduled' in str(game)]
+        all_games += all_games_tomorrow
         # INSERT THE GAMES INTO THE DATABASE
         for game in all_games:
+
             game = game[1:]
-            game.pop(3)
             items = {"time": "", "home": "", "away": "", "home_odd": "",
                      "draw_odd": "", "away_odd": ""}
 
