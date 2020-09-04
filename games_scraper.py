@@ -21,7 +21,7 @@ class Scraper:
         cursor = connector.cursor()
         cursor.execute('DROP TABLE IF EXISTS allGames')
         cursor.execute('CREATE TABLE allGames(time TEXT, home_team TEXT, away_team TEXT, '
-                       'home_odd REAL, draw_odd REAL, away_odd REAL)')
+                       'result TEXT, home_odd REAL, draw_odd REAL, away_odd REAL)')
 
         # OPEN THE WEBSITE AND GET THE DATA
         options = FirefoxOptions()
