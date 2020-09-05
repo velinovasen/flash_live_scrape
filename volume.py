@@ -34,9 +34,6 @@ class Volume:
         today_tr = days_numbered[days[now]]
         tomorrow_tr = days_numbered[days[now] + 1]
 
-        # TO ADD A FUNCTION THAT TAKES THE NEXT DAY TOO
-        # WE WANT TO BE ABLE TO CHECK FOR TODAY AND TOMORROWS VALUES
-
         # OPEN THE WEBSITE AND GET THE DATA
         options = ChromeOptions()
         options.headless = True

@@ -42,6 +42,7 @@ class Scraper:
         all_games = [list(game) for game in matches if 'event__match--scheduled' in str(game)]
         all_games_tomorrow = [list(game) for game in matches_tomorrow if 'event__match--scheduled' in str(game)]
         all_games += all_games_tomorrow
+
         # INSERT THE GAMES INTO THE DATABASE
         for game in all_games:
 
@@ -51,21 +52,25 @@ class Scraper:
 
             for element in game:
 
+                # GET THE START HOUR
                 if "event__time" in str(element):
                     pattern = r'(\d+[:]\d{2})'
                     time = re.search(pattern, str(element))
                     items["time"] = time.group()
 
+                # GET THE HOME TEAM
                 elif "participant--home" in str(element):
                     pattern = r'\"\>([A-z0-9]+.+)\<\/'
                     home_team = re.search(pattern, str(element))
                     items["home"] = home_team.group(1)
 
+                # GET THE AWAY TEAM
                 elif "participant--away" in str(element):
                     pattern = r'\"\>([A-z0-9]+.+)\<\/'
                     away_team = re.search(pattern, str(element))
                     items["away"] = away_team.group(1)
 
+                # GET THE HOME ODD
                 elif "o_1" in str(element):
                     pattern = r'\"\>(\d{1,2}\.\d{2})\<\/[s]'
                     try:
@@ -74,6 +79,7 @@ class Scraper:
                     except AttributeError:
                         items["home_odd"] = "1.00"
 
+                # GET THE DRAW ODD
                 elif "o_0" in str(element):
                     pattern = r'\"\>(\d{1,2}\.\d{2})\<\/[s]'
                     try:
@@ -82,6 +88,7 @@ class Scraper:
                     except AttributeError:
                         items["draw_odd"] = "1.00"
 
+                # GET THE AWAY ODD
                 elif "o_2" in str(element):
                     pattern = r'\"\>(\d{1,2}\.\d{2})\<\/[s]'
                     try:
@@ -90,6 +97,7 @@ class Scraper:
                     except AttributeError:
                         items["away_odd"] = "1.00"
 
+            # INSERT THE GAMES INTO THE DATABASE
             cursor.execute('INSERT INTO allGames(time, home_team, away_team, home_odd, draw_odd, away_odd) '
                            'VALUES (?, ?, ?, ?, ?, ?)', (items["time"], items["home"], items["away"],
                                                          items["home_odd"], items["draw_odd"], items["away_odd"]))
