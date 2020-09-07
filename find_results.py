@@ -14,8 +14,9 @@ class FindResults:
         # CONNECT THE DATABASE
         connector = sqlite3.connect('games-db')
         cursor = connector.cursor()
-        cursor.execute('CREATE TABLE IF NOT EXISTS allResults(time TEXT, win TEXT,'
-                       ' home_team TEXT, away_team TEXT, result TEXT, home_odd REAL,'
+        cursor.execute('CREATE TABLE IF NOT EXISTS allResults(win TEXT,'
+                       ' home_team TEXT, away_team TEXT, home_score DECIMAL,'
+                       ' away_score DECIMAL, home_odd REAL,'
                        ' draw_odd REAL, away_odd REAL)')
         # SET UP THE DRIVER
         options = FirefoxOptions()
@@ -34,20 +35,44 @@ class FindResults:
 
         # WORK WITH THE DATA
         for game in all_games:
+            items = {"home_team": "", "away_team": "", "home_score": "",
+                     "away_score": "", "home_odd": "", "draw_odd": "", "away_odd": ""}
             for element in game:
-                if 'participant--home' in element:
-                    pass
-                elif 'participant--away' in element:
-                    pass
-                elif 'event__scores' in element:
-                    pass
-                elif 'o_1' in element:
-                    pass
-                elif 'o_0' in element:
-                    pass
-                elif 'o_2' in element:
-                    pass
-
+                if 'participant--home' in str(element):
+                    pattern = r'\"\>([A-z0-9]+.+)\<\/'
+                    home_team = re.search(pattern, str(element))
+                    items["home_team"] = home_team.group(1)
+                elif 'participant--away' in str(element):
+                    pattern = r'\"\>([A-z0-9]+.+)\<\/'
+                    away_team = re.search(pattern, str(element))
+                    items["away_team"] = away_team.group(1)
+                elif 'event__scores' in str(element):
+                    pattern = r'[n]\>(\d+)\<\/'
+                    tokens = re.findall(pattern, str(element))
+                    items["home_score"] = int(tokens[0])
+                    items["away_score"] = int(tokens[1])
+                elif 'o_1' in str(element):
+                    pattern = r'\"\>(\d{1,2}\.\d{2})\<\/[s]'
+                    try:
+                        home_odd = re.search(pattern, str(element))
+                        items["home_odd"] = home_odd.group(1)
+                    except AttributeError:
+                        items["home_odd"] = "1.00"
+                elif 'o_0' in str(element):
+                    pattern = r'\"\>(\d{1,2}\.\d{2})\<\/[s]'
+                    try:
+                        draw_odd = re.search(pattern, str(element))
+                        items["draw_odd"] = draw_odd.group(1)
+                    except AttributeError:
+                        items["draw_odd"] = "1.00"
+                elif 'o_2' in str(element):
+                    pattern = r'\"\>(\d{1,2}\.\d{2})\<\/[s]'
+                    try:
+                        away_odd = re.search(pattern, str(element))
+                        items["away_odd"] = away_odd.group(1)
+                    except AttributeError:
+                        items["away_odd"] = "1.00"
+            print(items)
 
         # INSERT THE DATA INTO THE DATABASE
 
