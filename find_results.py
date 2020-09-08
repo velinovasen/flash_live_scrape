@@ -14,7 +14,8 @@ class FindResults:
         # CONNECT THE DATABASE
         connector = sqlite3.connect('games-db')
         cursor = connector.cursor()
-        cursor.execute('CREATE TABLE IF NOT EXISTS allResults(win TEXT,'
+        cursor.execute('DROP TABLE allResults')
+        cursor.execute('CREATE TABLE allResults(win TEXT,'
                        ' home_team TEXT, away_team TEXT, home_score DECIMAL,'
                        ' away_score DECIMAL, home_odd REAL,'
                        ' draw_odd REAL, away_odd REAL)')
@@ -72,11 +73,17 @@ class FindResults:
                         items["away_odd"] = away_odd.group(1)
                     except AttributeError:
                         items["away_odd"] = "1.00"
-            print(items)
 
         # INSERT THE DATA INTO THE DATABASE
-
+            cursor.execute('INSERT INTO allResults(home_team, away_team, home_score,'
+                           ' away_score, home_odd, draw_odd, away_odd) VALUES'
+                           ' (?, ?, ?, ?, ?, ?, ?)', (items["home_team"], items["away_team"],
+                                                      items["home_score"], items["away_score"],
+                                                      items["home_odd"], items["draw_odd"],
+                                                      items["away_odd"]))
+            connector.commit()
         driver.close()
+        connector.close()
 
 
 scrp = FindResults()

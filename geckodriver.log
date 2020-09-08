@@ -1672,16 +1672,20 @@ console.error: SearchCache: "_readCacheFile: Error reading cache file:" (new Err
 1599505105432	Marionette	INFO	Listening on port 57337
 1599505105519	Marionette	WARN	TLS certificate errors will be ignored for this session
 JavaScript error: https://www.soccer24.com/res/_fs/build/mainPageScripts.9efcac9.js, line 1: TypeError: $(...).offset() is undefined
-1599505151004	geckodriver	INFO	Listening on 127.0.0.1:57404
-1599505154028	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "-headless" "-foreground" "-no-remote" "-profile" "C:\\Users\\Asen\\AppData\\Local\\Temp\\rust_mozprofile8xlpKw"
+Exiting due to channel error.
+Exiting due to channel error.
+99505154028	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "-headless" "-foreground" "-no-remote" "-profile" "C:\\Users\\Asen\\AppData\\Local\\Temp\\rust_mozprofile8xlpKw"
 *** You are running in headless mode.
 JavaScript error: resource://gre/modules/XULStore.jsm, line 66: Error: Can't find profile directory.
 console.error: SearchCache: "_readCacheFile: Error reading cache file:" (new Error("", "(unknown module)"))
 1599505156939	Marionette	INFO	Listening on port 57412
 1599505157144	Marionette	WARN	TLS certificate errors will be ignored for this session
 JavaScript error: https://www.soccer24.com/res/_fs/build/mainPageScripts.9efcac9.js, line 1: TypeError: $(...).offset() is undefined
-1599505181085	geckodriver	INFO	Listening on 127.0.0.1:57473
-1599505184118	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "-headless" "-foreground" "-no-remote" "-profile" "C:\\Users\\Asen\\AppData\\Local\\Temp\\rust_mozprofilePxF1MP"
+Exiting due to channel error.
+Exiting due to channel error.
+Exiting due to channel error.
+Exiting due to channel error.
+am Files\\Mozilla Firefox\\firefox.exe" "--marionette" "-headless" "-foreground" "-no-remote" "-profile" "C:\\Users\\Asen\\AppData\\Local\\Temp\\rust_mozprofilePxF1MP"
 *** You are running in headless mode.
 JavaScript error: resource://gre/modules/XULStore.jsm, line 66: Error: Can't find profile directory.
 console.error: SearchCache: "_readCacheFile: Error reading cache file:" (new Error("", "(unknown module)"))
@@ -1698,3 +1702,20 @@ console.error: SearchCache: "_readCacheFile: Error reading cache file:" (new Err
 1599505245811	Marionette	WARN	TLS certificate errors will be ignored for this session
 JavaScript error: https://www.soccer24.com/res/_fs/build/mainPageScripts.9efcac9.js, line 1: TypeError: $(...).offset() is undefined
 1599505258899	Marionette	INFO	Stopped listening on port 57552
+1599565035253	geckodriver	INFO	Listening on 127.0.0.1:61971
+1599565038342	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "-headless" "-foreground" "-no-remote" "-profile" "C:\\Users\\Asen\\AppData\\Local\\Temp\\rust_mozprofilebciGk9"
+*** You are running in headless mode.
+JavaScript error: resource://gre/modules/XULStore.jsm, line 66: Error: Can't find profile directory.
+console.error: SearchCache: "_readCacheFile: Error reading cache file:" (new Error("", "(unknown module)"))
+1599565041321	Marionette	INFO	Listening on port 61979
+1599565041460	Marionette	WARN	TLS certificate errors will be ignored for this session
+JavaScript error: https://www.soccer24.com/res/_fs/build/mainPageScripts.eae7680.js, line 1: TypeError: $(...).offset() is undefined
+1599565201712	geckodriver	INFO	Listening on 127.0.0.1:62050
+1599565204771	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "-headless" "-foreground" "-no-remote" "-profile" "C:\\Users\\Asen\\AppData\\Local\\Temp\\rust_mozprofile6akUyT"
+*** You are running in headless mode.
+JavaScript error: resource://gre/modules/XULStore.jsm, line 66: Error: Can't find profile directory.
+console.error: SearchCache: "_readCacheFile: Error reading cache file:" (new Error("", "(unknown module)"))
+1599565207171	Marionette	INFO	Listening on port 62058
+1599565207384	Marionette	WARN	TLS certificate errors will be ignored for this session
+JavaScript error: https://www.soccer24.com/res/_fs/build/mainPageScripts.eae7680.js, line 1: TypeError: $(...).offset() is undefined
+1599565227072	Marionette	INFO	Stopped listening on port 62058
