@@ -40,13 +40,15 @@ class FindResults:
                      "away_score": "", "home_odd": "", "draw_odd": "", "away_odd": ""}
             for element in game:
                 if 'participant--home' in str(element):
-                    pattern = r'\"\>([A-z0-9]+.+)\<\/'
+                    pattern = r'(\"\>([A-z0-9]+.+)\<[s][v][g][ ]|\"\>[A-z0-9].+\<\/[d][i])'
                     home_team = re.search(pattern, str(element))
-                    items["home_team"] = home_team.group(1)
+                    home_team_token = home_team.group(1)[2:].split('<')
+                    items["home_team"] = home_team_token[0]
                 elif 'participant--away' in str(element):
-                    pattern = r'\"\>([A-z0-9]+.+)\<\/'
+                    pattern = r'(\"\>([A-z0-9]+.+)\<[s][v][g][ ]|\"\>[A-z0-9].+\<\/[d][i])'
                     away_team = re.search(pattern, str(element))
-                    items["away_team"] = away_team.group(1)
+                    team_away_token = away_team.group(1)[2:].split('<')
+                    items["away_team"] = team_away_token[0]
                 elif 'event__scores' in str(element):
                     pattern = r'[n]\>(\d+)\<\/'
                     tokens = re.findall(pattern, str(element))
