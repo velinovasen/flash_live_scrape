@@ -30,7 +30,7 @@ class Scraper:
         driver.get(self.WEB_LINKS["flashscore"])
         sleep(1)
         html = driver.execute_script("return document.documentElement.outerHTML;")
-        driver.find_element_by_css_selector('.calendar__direction--tomorrow').click()
+        driver.find_element_by_xpath('/html/body/div[4]/div[1]/div/div[1]/div[2]/div[4]/div[2]/div[1]/div[2]/div[3]/div').click()
         sleep(1)
         html_tomorrow = driver.execute_script("return document.documentElement.outerHTML;")
 
@@ -97,6 +97,7 @@ class Scraper:
                     except AttributeError:
                         items["away_odd"] = "1.00"
 
+            print(items)
             # INSERT THE GAMES INTO THE DATABASE
             cursor.execute('INSERT INTO allGames(time, home_team, away_team, home_odd, draw_odd, away_odd) '
                            'VALUES (?, ?, ?, ?, ?, ?)', (items["time"], items["home"], items["away"],

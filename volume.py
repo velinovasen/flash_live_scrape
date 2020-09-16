@@ -18,21 +18,13 @@ class Volume:
         connector = sqlite3.connect('games-db')
         cursor = connector.cursor()
         cursor.execute('DROP TABLE IF EXISTS VolumeGames')
-        cursor.execute('CREATE TABLE VolumeGames(time TEXT, home_team TEXT, '
-                       'away_team TEXT, bet_sign INTEGER, odd REAL, volume REAL)')
+        cursor.execute('CREATE TABLE VolumeGames(day TEXT, time TEXT, home_team TEXT,'
+                       ' away_team TEXT, bet_sign INTEGER, odd REAL, volume REAL)')
 
         days_numbered = {
-            1: "Pts,", 2: "Sal,", 3: "Çar,", 4: "Per,",
-            5: "Cum,", 6: "Cts,", 7: "Pzr,"
+            "Pts": "Monday", "Sal": "Tuesday", "Çar": "Wednesday", "Per": "Thursday",
+            "Cum": "Friday", "Cts": "Saturday", "Pzr": "Sunday"
         }
-
-        days = {
-            "Monday": 1, "Tuesday": 2, "Wednesday": 3, "Thursday": 4,
-            "Friday": 5, "Saturday": 6, "Sunday": 7
-        }
-        now = datetime.datetime.now().strftime("%A")
-        today_tr = days_numbered[days[now]]
-        tomorrow_tr = days_numbered[days[now] + 1]
 
         # OPEN THE WEBSITE AND GET THE DATA
         options = ChromeOptions()
@@ -51,39 +43,47 @@ class Volume:
         for game in matches:
             elements = list(game)
             #print(elements)
-            if today_tr or tomorrow_tr in str(elements[1]):
-                # GET THE TIME
-                time_tokens = str(elements[1])
-                time_pattern = r'[ ](\d+[:]\d+)\<\/'
-                time_raw = re.search(time_pattern, time_tokens)
-                time = time_raw.group(1)
 
-                # GET THE TEAMS
-                team_tokens = str(elements[2])
-                teams_pattern = r'[o][n][g]\>(.+)\<\/[s][t][r]'
-                teams = re.search(teams_pattern, team_tokens)
-                home_team, away_team = teams.group(1).split(' - ')
+            # GET THE TIME
+            time_tokens = str(elements[1])
+            time_pattern = r'[ ](\d+[:]\d+)\<\/'
+            day_pattern = r'\;\"\>(.{3})\,'
+            time_raw = re.search(time_pattern, time_tokens)
+            day_raw = re.search(day_pattern, time_tokens)
+            time = time_raw.group(1)
+            day = days_numbered[day_raw.group(1)]
+            #print(days_numbered[day])
 
-                # GET THE BET POSITION
-                position_token = str(elements[3])
-                position_pattern = r'[s][p][a][n]\>[ ](\d{1})\<\/[d][i]'
-                position = re.search(position_pattern, position_token)
-                final_bet = position.group(1)
+            # GET THE TEAMS
+            team_tokens = str(elements[2])
+            teams_pattern = r'[o][n][g]\>(.+)\<\/[s][t][r]'
+            teams = re.search(teams_pattern, team_tokens)
+            home_team, away_team = teams.group(1).split(' - ')
 
-                # GET THE ODD
-                odds_token = str(elements[4])
-                odds_pattern = r'[a][n]\>(\d+\.\d+)\<\/'
-                odds_raw = re.search(odds_pattern, odds_token)
-                odds = odds_raw.group(1)
+            # GET THE BET POSITION
+            position_token = str(elements[3])
+            position_pattern = r'[s][p][a][n]\>[ ](\d{1})\<\/[d][i]'
+            position = re.search(position_pattern, position_token)
+            final_bet = position.group(1)
 
-                # GET THE AMOUNT
-                amount_token = str(elements[5])
-                amount_pattern = r'[o][n][g]\>(.+)[ ][A-z]+'
-                amount = re.search(amount_pattern, amount_token)
-                total_amount = amount.group(1)
+            # GET THE ODD
+            odds_token = str(elements[4])
+            odds_pattern = r'[a][n]\>(\d+\.\d+)\<\/'
+            odds_raw = re.search(odds_pattern, odds_token)
+            odds = odds_raw.group(1)
 
-                cursor.execute('INSERT INTO VolumeGames(time, home_team, away_team, bet_sign,'
-                               ' odd, volume) VALUES (?, ?, ?, ?, ?, ?)',
-                               (time, home_team, away_team, final_bet, odds, total_amount))
+            # GET THE AMOUNT
+            amount_token = str(elements[5])
+            amount_pattern = r'[o][n][g]\>(.+)[ ][A-z]+'
+            amount = re.search(amount_pattern, amount_token)
+            total_amount = amount.group(1)
+
+            cursor.execute('INSERT INTO VolumeGames(day, time, home_team, away_team, bet_sign,'
+                           ' odd, volume) VALUES (?, ?, ?, ?, ?, ?, ?)',
+                           (day, time, home_team, away_team, final_bet, odds, total_amount))
         connector.commit()
         connector.close()
+
+
+scraper = Volume()
+scraper.get_volume()
