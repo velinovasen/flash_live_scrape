@@ -82,6 +82,7 @@ class Volume:
                            ' odd, volume) VALUES (?, ?, ?, ?, ?, ?, ?)',
                            (day, time, home_team, away_team, final_bet, odds, total_amount))
         connector.commit()
+        driver.close()
         connector.close()
 
 

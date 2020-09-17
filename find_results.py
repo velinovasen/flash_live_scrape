@@ -83,7 +83,7 @@ class FindResults:
                                                       items["home_score"], items["away_score"],
                                                       items["home_odd"], items["draw_odd"],
                                                       items["away_odd"]))
-            connector.commit()
+        connector.commit()
         driver.close()
         connector.close()
 

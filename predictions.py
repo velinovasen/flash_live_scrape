@@ -27,3 +27,7 @@ class Predictions:
         driver.get(self.WEB_LINKS['football'])
         sleep(2)
         html = driver.execute_script('return document.documentElement.outerHTML;')
+
+
+        driver.close()
+        cursor.close()
