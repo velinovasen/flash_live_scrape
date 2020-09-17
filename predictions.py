@@ -27,18 +27,20 @@ class Predictions:
 
         # OPEN THE WEBSITE AND WORK WITH IT
         options = ChromeOptions()
-        options.headless = False   # IF YOU WANT TO SEE THE BROWSER -> FALSE
+        options.headless = True   # IF YOU WANT TO SEE THE BROWSER -> FALSE
         driver = Chrome(options=options, executable_path='C://Windows/chromedriver.exe')
         driver_tomorrow = Chrome(options=options, executable_path='C://Windows/chromedriver.exe')
         driver.get(self.WEB_LINKS['football_today'])
         driver_tomorrow.get(self.WEB_LINKS['football_tomorrow'])
-        sleep(2)
+        sleep(3)
 
         # PRESS [MORE] BUTTON ON THE BOTTOM UNTIL DISAPPEAR
+
+        # PROBLEM WITH IT - > IT'S NOT PRESSING ALWAYS
         while True:
             try:
-                sleep(3)
-                driver.find_element_by_xpath('/html/body/div[1]/div[2]/div[2]/div[2]/table/tbody/tr[47]/td/span').click()
+                sleep(5)
+                driver.find_element_by_css_selector('/html/body/div[1]/div[2]/div[2]/div[2]/table/tbody/tr[47]/td/span').click()
                 driver_tomorrow.find_element_by_xpath('/html/body/div[1]/div[2]/div[2]/table/tbody/tr[47]/td/span').click()
             except Exception:
                 sleep(3)
@@ -68,8 +70,11 @@ class Predictions:
         # SEARCH THE DATA WE NEED
         for game in all_games:
             # FIND THE TEAMS
-            teams_pattern = self.REGEX["both_teams"]
-
+            both_teams = re.search(self.REGEX["both_teams"], str(game))
+            print(both_teams)
+            # home_team = both_teams.group(1)
+            # away_team = both_teams.group(2)
+            # print(f"{home_team} - {away_team}")
 
         cursor.close()
 
