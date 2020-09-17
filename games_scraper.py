@@ -34,6 +34,9 @@ class Scraper:
         sleep(1)
         html_tomorrow = driver.execute_script("return document.documentElement.outerHTML;")
 
+        # CLOSE THE BROWSER
+        driver.close()
+
         # WORK WITH THE DATA AND GET THE GAMES
         soup = bs4.BeautifulSoup(html, 'html.parser')
         soup2 = bs4.BeautifulSoup(html_tomorrow, 'html.parser')
@@ -101,7 +104,6 @@ class Scraper:
                            'VALUES (?, ?, ?, ?, ?, ?)', (items["time"], items["home"], items["away"],
                                                          items["home_odd"], items["draw_odd"], items["away_odd"]))
         connector.commit()
-        driver.close()
         connector.close()
 
 

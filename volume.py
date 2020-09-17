@@ -30,7 +30,7 @@ class Volume:
         options = ChromeOptions()
         options.headless = True
         options.add_argument("--lang=en")
-        driver = Chrome(executable_path='C://Windows/chromedriver.exe', options=options)
+        driver = Chrome(options=options, executable_path='C://Windows/chromedriver.exe')
         driver.get(self.WEB_LINKS["football"])
         sleep(2)
         html = driver.execute_script("return document.documentElement.outerHTML;")
@@ -81,8 +81,8 @@ class Volume:
             cursor.execute('INSERT INTO VolumeGames(day, time, home_team, away_team, bet_sign,'
                            ' odd, volume) VALUES (?, ?, ?, ?, ?, ?, ?)',
                            (day, time, home_team, away_team, final_bet, odds, total_amount))
-        connector.commit()
-        driver.close()
+            connector.commit()
+
         connector.close()
 
 

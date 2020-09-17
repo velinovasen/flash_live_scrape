@@ -50,6 +50,10 @@ class Predictions:
         html_today = driver.execute_script('return document.documentElement.outerHTML;')
         html_tomorrow = driver_tomorrow.execute_script('return document.documentElement.outerHTML;')
 
+        # CLOSE THE BROWSERS
+        driver_tomorrow.close()
+        driver.close()
+
         # WORK WITH THE DATA
         today_soup = bs4.BeautifulSoup(html_today, 'html.parser')
         tomorrow_soup = bs4.BeautifulSoup(html_tomorrow, 'html.parser')
@@ -57,12 +61,11 @@ class Predictions:
         matches_two_today = today_soup.find_all(class_=re.compile('tr_1'))
         matches_one_tomorrow = tomorrow_soup.find_all(class_=re.compile('tr_0'))
         matches_two_tomorrow = tomorrow_soup.find_all(class_=re.compile('tr_1'))
-        # [print(game) for game in matches_one_today]
-        # [print(game) for game in matches_two_today]
-        # [print(game) for game in matches_one_tomorrow]
-        # [print(game) for game in matches_two_tomorrow]
-        driver_tomorrow.close()
-        driver.close()
+        [print(game) for game in matches_one_today]
+        [print(game) for game in matches_two_today]
+        [print(game) for game in matches_one_tomorrow]
+        [print(game) for game in matches_two_tomorrow]
+
         cursor.close()
 
 

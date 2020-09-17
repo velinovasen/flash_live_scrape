@@ -29,6 +29,9 @@ class FindResults:
         time.sleep(1)
         html = driver.execute_script('return document.documentElement.outerHTML;')
 
+        # CLOSE THE BROWSER
+        driver.close()
+
         # GET THE DATA
         soup = bs4.BeautifulSoup(html, 'html.parser')
         matches = soup.find_all(class_=re.compile('event__match'))
@@ -84,7 +87,6 @@ class FindResults:
                                                       items["home_odd"], items["draw_odd"],
                                                       items["away_odd"]))
         connector.commit()
-        driver.close()
         connector.close()
 
 
