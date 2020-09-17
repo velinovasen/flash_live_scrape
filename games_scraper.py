@@ -1,5 +1,5 @@
 import bs4
-from selenium.webdriver import Firefox, FirefoxOptions
+from selenium.webdriver import Chrome, ChromeOptions
 import sqlite3
 import re
 from time import sleep
@@ -24,9 +24,9 @@ class Scraper:
                        'result TEXT, home_odd REAL, draw_odd REAL, away_odd REAL)')
 
         # OPEN THE WEBSITE AND GET THE DATA
-        options = FirefoxOptions()
+        options = ChromeOptions()
         options.headless = True
-        driver = Firefox(options=options, executable_path='C://Windows/geckodriver.exe')
+        driver = Chrome(options=options, executable_path='C://Windows/chromedriver.exe')
         driver.get(self.WEB_LINKS["flashscore"])
         sleep(1)
         html = driver.execute_script("return document.documentElement.outerHTML;")
@@ -42,10 +42,9 @@ class Scraper:
         all_games = [list(game) for game in matches if 'event__match--scheduled' in str(game)]
         all_games_tomorrow = [list(game) for game in matches_tomorrow if 'event__match--scheduled' in str(game)]
         all_games += all_games_tomorrow
-
+        print(len(all_games))
         # INSERT THE GAMES INTO THE DATABASE
         for game in all_games:
-
             game = game[1:]
             items = {"time": "", "home": "", "away": "", "home_odd": "",
                      "draw_odd": "", "away_odd": ""}
@@ -97,12 +96,11 @@ class Scraper:
                     except AttributeError:
                         items["away_odd"] = "1.00"
 
-            print(items)
             # INSERT THE GAMES INTO THE DATABASE
             cursor.execute('INSERT INTO allGames(time, home_team, away_team, home_odd, draw_odd, away_odd) '
                            'VALUES (?, ?, ?, ?, ?, ?)', (items["time"], items["home"], items["away"],
                                                          items["home_odd"], items["draw_odd"], items["away_odd"]))
-            connector.commit()
+        connector.commit()
         driver.close()
         connector.close()
 
