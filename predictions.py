@@ -1,14 +1,8 @@
 import sqlite3
-
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
-
 from selenium.webdriver import Chrome, ChromeOptions
 import bs4
 import re
 from time import sleep
-
-from selenium.webdriver.support.wait import WebDriverWait
 
 
 class Predictions:
@@ -16,6 +10,10 @@ class Predictions:
     WEB_LINKS = {
         'football_today': 'https://m.forebet.com/en/football-tips-and-predictions-for-today',
         'football_tomorrow': 'https://m.forebet.com/en/football-tips-and-predictions-for-tomorrow'
+    }
+
+    REGEX = {
+        "both_teams": r'[t]\=\"(.{1,60})[ ][v][s][ ](.{1,60})\"[ ]'
     }
 
     def scrape(self):
@@ -43,7 +41,7 @@ class Predictions:
                 driver.find_element_by_xpath('/html/body/div[1]/div[2]/div[2]/div[2]/table/tbody/tr[47]/td/span').click()
                 driver_tomorrow.find_element_by_xpath('/html/body/div[1]/div[2]/div[2]/table/tbody/tr[47]/td/span').click()
             except Exception:
-                print('something BROKEN')
+                sleep(3)
                 break
 
         # GET THE DATA
@@ -61,10 +59,17 @@ class Predictions:
         matches_two_today = today_soup.find_all(class_=re.compile('tr_1'))
         matches_one_tomorrow = tomorrow_soup.find_all(class_=re.compile('tr_0'))
         matches_two_tomorrow = tomorrow_soup.find_all(class_=re.compile('tr_1'))
-        [print(game) for game in matches_one_today]
-        [print(game) for game in matches_two_today]
-        [print(game) for game in matches_one_tomorrow]
-        [print(game) for game in matches_two_tomorrow]
+        all_games = []
+        all_games += [list(game) for game in matches_one_today]
+        all_games += [list(game) for game in matches_two_today]
+        all_games += [list(game) for game in matches_one_tomorrow]
+        all_games += [list(game) for game in matches_two_tomorrow]
+
+        # SEARCH THE DATA WE NEED
+        for game in all_games:
+            # FIND THE TEAMS
+            teams_pattern = self.REGEX["both_teams"]
+
 
         cursor.close()
 
