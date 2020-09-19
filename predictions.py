@@ -70,11 +70,21 @@ class Predictions:
         matches_one_tomorrow = tomorrow_soup.find_all(class_=re.compile('tr_0'))
         matches_two_tomorrow = tomorrow_soup.find_all(class_=re.compile('tr_1'))
         all_games = []
-        all_games += [list(game) for game in matches_one_today]
-        all_games += [list(game) for game in matches_two_today]
-        all_games += [list(game) for game in matches_one_tomorrow]
-        all_games += [list(game) for game in matches_two_tomorrow]
+        all_games += [list(game) for game in matches_one_today] + [list(game) for game in matches_two_today]
+        all_games += [list(game) for game in matches_one_tomorrow] + [list(game) for game in matches_two_tomorrow]
         return all_games
+
+    def clean_data(self, all_games):
+        # SEARCH THE DATA WE NEED
+        for game in all_games:
+            # FIND THE TEAMS
+            both_teams = re.search(self.REGEX["both_teams"], str(game))
+            try:
+                home_team = both_teams.group(1)
+                away_team = both_teams.group(2)
+                print(f"{home_team} - {away_team}")
+            except AttributeError:
+                continue
 
     def scrape(self):
 
@@ -90,14 +100,8 @@ class Predictions:
         # GET ALL GAMES
         all_games = self.get_all_games(driver, driver_tomorrow)
 
-        # SEARCH THE DATA WE NEED
-        for game in all_games:
-            # FIND THE TEAMS
-            both_teams = re.search(self.REGEX["both_teams"], str(game))
-            print(both_teams)
-            # home_team = both_teams.group(1)
-            # away_team = both_teams.group(2)
-            # print(f"{home_team} - {away_team}")
+        # CLEAN DATA
+        self.clean_data(all_games)
 
         cursor.close()
 
