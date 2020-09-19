@@ -17,27 +17,28 @@ class Predictions:
         "both_teams": r'[t]\=\"(.{1,60})[ ][v][s][ ](.{1,60})\"[ ]'
     }
 
-    def scrape(self):
-        # TO DO - CONNECT THE DATABASE
+    def connect_the_database(self):
+        # CONNECT THE DATABASE
         connector = sqlite3.connect('games-db')
         cursor = connector.cursor()
         cursor.execute("DROP TABLE IF EXISTS Predictions")
         cursor.execute('CREATE TABLE Predictions(time TEXT, home_team TEXT, away_team TEXT,'
                        ' home_prob DECIMAL, draw_prob DECIMAL, away_prob DECIMAL, bet_sign DECIMAL,'
                        ' score_predict TEXT, avg_goals REAL, odds REAL, temp TEXT)')
+        return connector, cursor
 
+    def open_the_browsers(self):
         # OPEN THE WEBSITE AND WORK WITH IT
         options = ChromeOptions()
-        options.headless = True   # IF YOU WANT TO SEE THE BROWSER -> FALSE
+        options.headless = True  # IF YOU WANT TO SEE THE BROWSER -> FALSE
         driver = Chrome(options=options, executable_path='C://Windows/chromedriver.exe')
         driver_tomorrow = Chrome(options=options, executable_path='C://Windows/chromedriver.exe')
         driver.get(self.WEB_LINKS['football_today'])
         driver_tomorrow.get(self.WEB_LINKS['football_tomorrow'])
         sleep(3)
+        return driver, driver_tomorrow
 
-        # PRESS [MORE] BUTTON ON THE BOTTOM UNTIL DISAPPEAR
-
-        # PROBLEM WITH IT - > IT'S NOT PRESSING ALWAYS
+    def click_on_buttons(self, driver, driver_tomorrow):
         while True:
             try:
                 sleep(3)
@@ -52,6 +53,7 @@ class Predictions:
                 sleep(3)
                 break
 
+    def get_all_games(self, driver, driver_tomorrow):
         # GET THE DATA
         html_today = driver.execute_script('return document.documentElement.outerHTML;')
         html_tomorrow = driver_tomorrow.execute_script('return document.documentElement.outerHTML;')
@@ -72,6 +74,21 @@ class Predictions:
         all_games += [list(game) for game in matches_two_today]
         all_games += [list(game) for game in matches_one_tomorrow]
         all_games += [list(game) for game in matches_two_tomorrow]
+        return all_games
+
+    def scrape(self):
+
+        # CONNECT THE DATABASE
+        connector, cursor = self.connect_the_database()
+
+        # OPEN THE BROWSERS
+        driver, driver_tomorrow = self.open_the_browsers()
+
+        # PRESS [MORE] BUTTON ON THE BOTTOM UNTIL DISAPPEAR
+        self.click_on_buttons(driver, driver_tomorrow)
+
+        # GET ALL GAMES
+        all_games = self.get_all_games(driver, driver_tomorrow)
 
         # SEARCH THE DATA WE NEED
         for game in all_games:
