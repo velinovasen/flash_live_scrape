@@ -19,7 +19,10 @@ class Predictions:
         "probabilities": r'\>(\d{1,2})\<\/([t]|[b])',
         "prediction": r'[r]\"\>([A-z0-9])\<\/',
         "score_prediction": r'\"\>(\d{1,2}[ ]\-[ ]\d{1,2})\<\/',
-        "average_goals": r'[y]\"\>(\d{1,3}\.\d{1,2})\<\/'
+        "average_goals": r'[y]\"\>(\d{1,3}\.\d{1,2})\<\/',
+        "temperature": r'[s]\"\>(\d{1,2}.{1})\<\/',
+        "odds_for_prediction": r'\;\"\>(\d{1,2}\.\d{1,2})\<\/',
+        "all_odds": r'[n]\>(\d{1,3}\.\d{1,2})\<\/'
     }
 
     def connect_the_database(self):
@@ -82,42 +85,62 @@ class Predictions:
     def clean_data(self, all_games):
         # SEARCH THE DATA WE NEED
         for game in all_games:
+            items = {}
+
             # FIND THE TEAMS
             both_teams = re.search(self.REGEX["both_teams"], str(game))
             try:
-                home_team = both_teams.group(1)
-                away_team = both_teams.group(2)
-                print(f"{home_team} - {away_team}")
+                items['home_team'] = both_teams.group(1)
+                items['away_team'] = both_teams.group(2)
+                print(f"{items['home_team']} - {items['away_team']}")
             except AttributeError:
                 continue
 
             # FIND THE TIME
             date_and_time = re.search(self.REGEX["date_and_time"], str(game))
             try:
-                date = date_and_time.group(1)
-                time = date_and_time.group(2)
-                print(f"{date} - {time}")
+                items['date'] = date_and_time.group(1)
+                items['time'] = date_and_time.group(2)
+                print(f"{items['date']} - {items['time']}")
             except AttributeError:
                 pass
 
             # PROBABILITIES
             probabilities = re.findall(self.REGEX["probabilities"], str(game))
-            home_prob, draw_prob, away_prob = probabilities[0][0], probabilities[1][0], probabilities[2][0]
-            print(f"{home_prob} _ {draw_prob} _ {away_prob}")
+            items['home_prob'], items['draw_prob'], items['away_prob'] = probabilities[0][0], probabilities[1][0],\
+                                                                         probabilities[2][0]
+            print(f"{items['home_prob']} _ {items['draw_prob']} _ {items['away_prob']}")
 
             # PREDICTION SIGN
-            prediction_sign = re.search(self.REGEX["prediction"], str(game)).group(1)
-            print(f"{prediction_sign}")
+            items['prediction_sign'] = re.search(self.REGEX["prediction"], str(game)).group(1)
+            print(f"{items['prediction_sign']}")
 
             # SCORE PREDICTION
-            score_prediction = re.search(self.REGEX["score_prediction"], str(game)).group(1)
-            print(f"{score_prediction}")
+            items['score_prediction'] = re.search(self.REGEX["score_prediction"], str(game)).group(1)
+            print(f"{items['score_prediction']}")
 
             # FIND AVERAGE GOALS PER GAME
-            average_goals = re.search(self.REGEX["average_goals"], str(game)).group(1)
-            print(f"{average_goals}")
+            items['average_goals'] = re.search(self.REGEX["average_goals"], str(game)).group(1)
+            print(f"{items['average_goals']}")
+
+            # GET THE WEATHER TEMPERATURE
+            try:
+                items['temperature'] = re.search(self.REGEX["temperature"], str(game)).group(1)
+                print(items['temperature'])
+            except AttributeError:
+                pass
 
             # GET THE ODDS
+            try:
+                items['odds_for_prediction'] = re.search(self.REGEX["odds_for_prediction"], str(game)).group(1)
+                all_odds_token = re.findall(self.REGEX["all_odds"], str(game))
+                # IF YOU WANT TO TAKE THE LIVE ODDS (IF LIVE) -> THEY ARE AVAILABLE IN THE FULL all_odds_token
+                items["home_odd"], items["draw_odd"], items["away_odd"] = all_odds_token[:3]
+                print(f"---[{items['home_odd']} _ {items['draw_odd']} _ {items['away_odd']}]---")
+                print(items['odds_for_prediction'])
+            except AttributeError:
+                pass
+
 
     def scrape(self):
 
