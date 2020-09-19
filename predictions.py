@@ -7,7 +7,6 @@ from time import sleep
 
 
 class Predictions:
-
     WEB_LINKS = {
         'football_today': 'https://m.forebet.com/en/football-tips-and-predictions-for-today',
         'football_tomorrow': 'https://m.forebet.com/en/football-tips-and-predictions-for-tomorrow'
@@ -25,15 +24,26 @@ class Predictions:
         "all_odds": r'[n]\>(\d{1,3}\.\d{1,2})\<\/'
     }
 
-    def connect_the_database(self):
+    def scrape(self):
+
         # CONNECT THE DATABASE
-        connector = sqlite3.connect('games-db')
-        cursor = connector.cursor()
-        cursor.execute("DROP TABLE IF EXISTS Predictions")
-        cursor.execute('CREATE TABLE Predictions(time TEXT, home_team TEXT, away_team TEXT,'
-                       ' home_prob DECIMAL, draw_prob DECIMAL, away_prob DECIMAL, bet_sign DECIMAL,'
-                       ' score_predict TEXT, avg_goals REAL, odds REAL, temp TEXT)')
-        return connector, cursor
+        connector, cursor = self.connect_the_database()
+
+        # OPEN THE BROWSERS
+        driver, driver_tomorrow = self.open_the_browsers()
+
+        # PRESS [MORE] BUTTON ON THE BOTTOM UNTIL DISAPPEAR
+        self.click_on_buttons(driver, driver_tomorrow)
+
+        # GET ALL GAMES
+        all_games = self.get_all_games(driver, driver_tomorrow)
+
+        # CLEAN DATA
+        self.clean_data(all_games, cursor)
+
+        connector.commit()
+        cursor.close()
+        connector.close()
 
     def open_the_browsers(self):
         # OPEN THE WEBSITE AND WORK WITH IT
@@ -46,7 +56,72 @@ class Predictions:
         sleep(3)
         return driver, driver_tomorrow
 
-    def click_on_buttons(self, driver, driver_tomorrow):
+    def clean_data(self, all_games, cursor):
+        # SEARCH THE DATA WE NEED
+        for game in all_games:
+            items = {}
+
+            # FIND THE TEAMS
+            both_teams = re.search(self.REGEX["both_teams"], str(game))
+            try:
+                items['home_team'] = both_teams.group(1)
+                items['away_team'] = both_teams.group(2)
+                # print(f"{items['home_team']} - {items['away_team']}")
+            except AttributeError:
+                continue
+
+            # FIND THE TIME
+            date_and_time = re.search(self.REGEX["date_and_time"], str(game))
+
+            items['date'] = date_and_time.group(1)
+            items['time'] = date_and_time.group(2)
+
+            # PROBABILITIES
+            probabilities = re.findall(self.REGEX["probabilities"], str(game))
+            items['home_prob'], items['draw_prob'], items['away_prob'] = probabilities[0][0], probabilities[1][0], \
+                                                                         probabilities[2][0]
+
+            # PREDICTION SIGN
+            items['prediction_sign'] = re.search(self.REGEX["prediction"], str(game)).group(1)
+
+            # SCORE PREDICTION
+            items['score_prediction'] = re.search(self.REGEX["score_prediction"], str(game)).group(1)
+
+            # FIND AVERAGE GOALS PER GAME
+            items['average_goals'] = re.search(self.REGEX["average_goals"], str(game)).group(1)
+
+            # GET THE WEATHER TEMPERATURE
+            try:
+                items['temperature'] = re.search(self.REGEX["temperature"], str(game)).group(1)
+            except AttributeError:
+                items['temperature'] = '-'
+
+            # GET THE ODDS
+            try:
+                items['odds_for_prediction'] = re.search(self.REGEX["odds_for_prediction"], str(game)).group(1)
+                all_odds_token = re.findall(self.REGEX["all_odds"], str(game))
+                # IF YOU WANT TO TAKE THE LIVE ODDS (IF LIVE) -> THEY ARE AVAILABLE IN THE FULL all_odds_token
+                items["home_odd"], items["draw_odd"], items["away_odd"] = all_odds_token[:3]
+            except AttributeError:
+                items['odds_for_prediction'] = '-'
+                items["home_odd"], items["draw_odd"], items["away_odd"] = ['-', '-', '-']
+
+            self.database_append(cursor, items)
+
+    @staticmethod
+    def connect_the_database():
+        # CONNECT THE DATABASE
+        connector = sqlite3.connect('games-db')
+        cursor = connector.cursor()
+        cursor.execute("DROP TABLE IF EXISTS Predictions")
+        cursor.execute('CREATE TABLE Predictions(date TEXT, time TEXT, home_team TEXT, away_team TEXT,'
+                       ' home_prob DECIMAL, draw_prob DECIMAL, away_prob DECIMAL, bet_sign DECIMAL,'
+                       ' score_predict TEXT, avg_goals REAL, odds_predict REAL,'
+                       ' home_odd REAL, draw_odd REAL, away_odd REAL, temp TEXT)')
+        return connector, cursor
+
+    @staticmethod
+    def click_on_buttons(driver, driver_tomorrow):
         while True:
             try:
                 sleep(3)
@@ -61,7 +136,8 @@ class Predictions:
                 sleep(3)
                 break
 
-    def get_all_games(self, driver, driver_tomorrow):
+    @staticmethod
+    def get_all_games(driver, driver_tomorrow):
         # GET THE DATA
         html_today = driver.execute_script('return document.documentElement.outerHTML;')
         html_tomorrow = driver_tomorrow.execute_script('return document.documentElement.outerHTML;')
@@ -82,84 +158,15 @@ class Predictions:
         all_games += [list(game) for game in matches_one_tomorrow] + [list(game) for game in matches_two_tomorrow]
         return all_games
 
-    def clean_data(self, all_games):
-        # SEARCH THE DATA WE NEED
-        for game in all_games:
-            items = {}
-
-            # FIND THE TEAMS
-            both_teams = re.search(self.REGEX["both_teams"], str(game))
-            try:
-                items['home_team'] = both_teams.group(1)
-                items['away_team'] = both_teams.group(2)
-                print(f"{items['home_team']} - {items['away_team']}")
-            except AttributeError:
-                continue
-
-            # FIND THE TIME
-            date_and_time = re.search(self.REGEX["date_and_time"], str(game))
-            try:
-                items['date'] = date_and_time.group(1)
-                items['time'] = date_and_time.group(2)
-                print(f"{items['date']} - {items['time']}")
-            except AttributeError:
-                pass
-
-            # PROBABILITIES
-            probabilities = re.findall(self.REGEX["probabilities"], str(game))
-            items['home_prob'], items['draw_prob'], items['away_prob'] = probabilities[0][0], probabilities[1][0],\
-                                                                         probabilities[2][0]
-            print(f"{items['home_prob']} _ {items['draw_prob']} _ {items['away_prob']}")
-
-            # PREDICTION SIGN
-            items['prediction_sign'] = re.search(self.REGEX["prediction"], str(game)).group(1)
-            print(f"{items['prediction_sign']}")
-
-            # SCORE PREDICTION
-            items['score_prediction'] = re.search(self.REGEX["score_prediction"], str(game)).group(1)
-            print(f"{items['score_prediction']}")
-
-            # FIND AVERAGE GOALS PER GAME
-            items['average_goals'] = re.search(self.REGEX["average_goals"], str(game)).group(1)
-            print(f"{items['average_goals']}")
-
-            # GET THE WEATHER TEMPERATURE
-            try:
-                items['temperature'] = re.search(self.REGEX["temperature"], str(game)).group(1)
-                print(items['temperature'])
-            except AttributeError:
-                pass
-
-            # GET THE ODDS
-            try:
-                items['odds_for_prediction'] = re.search(self.REGEX["odds_for_prediction"], str(game)).group(1)
-                all_odds_token = re.findall(self.REGEX["all_odds"], str(game))
-                # IF YOU WANT TO TAKE THE LIVE ODDS (IF LIVE) -> THEY ARE AVAILABLE IN THE FULL all_odds_token
-                items["home_odd"], items["draw_odd"], items["away_odd"] = all_odds_token[:3]
-                print(f"---[{items['home_odd']} _ {items['draw_odd']} _ {items['away_odd']}]---")
-                print(items['odds_for_prediction'])
-            except AttributeError:
-                pass
-
-
-    def scrape(self):
-
-        # CONNECT THE DATABASE
-        connector, cursor = self.connect_the_database()
-
-        # OPEN THE BROWSERS
-        driver, driver_tomorrow = self.open_the_browsers()
-
-        # PRESS [MORE] BUTTON ON THE BOTTOM UNTIL DISAPPEAR
-        self.click_on_buttons(driver, driver_tomorrow)
-
-        # GET ALL GAMES
-        all_games = self.get_all_games(driver, driver_tomorrow)
-
-        # CLEAN DATA
-        self.clean_data(all_games)
-
-        cursor.close()
+    @staticmethod
+    def database_append(cursor, items):
+        cursor.execute('INSERT INTO Predictions(date, time, home_team, away_team, home_prob, draw_prob,'
+                       ' away_prob, bet_sign, score_predict, avg_goals, odds_predict, home_odd,'
+                       ' draw_odd, away_odd, temp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                       (items['date'], items['time'], items['home_team'], items['away_team'],
+                        items['home_prob'], items['draw_prob'], items['away_prob'], items['prediction_sign'],
+                        items['score_prediction'], items['average_goals'], items['odds_for_prediction'],
+                        items['home_odd'], items['draw_odd'], items['away_odd'], items['temperature']))
 
 
 scraper = Predictions()
