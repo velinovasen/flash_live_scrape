@@ -1,4 +1,5 @@
 import sqlite3
+from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver import Chrome, ChromeOptions
 import bs4
 import re
@@ -39,9 +40,14 @@ class Predictions:
         # PROBLEM WITH IT - > IT'S NOT PRESSING ALWAYS
         while True:
             try:
-                sleep(5)
-                driver.find_element_by_css_selector('/html/body/div[1]/div[2]/div[2]/div[2]/table/tbody/tr[47]/td/span').click()
-                driver_tomorrow.find_element_by_xpath('/html/body/div[1]/div[2]/div[2]/table/tbody/tr[47]/td/span').click()
+                sleep(3)
+                driver.find_element_by_css_selector('#close-cc-bar').click()
+                today_token = driver.find_element_by_css_selector('#mrows > td > span')
+                ActionChains(driver).move_to_element(today_token).click(today_token).perform()
+
+                driver_tomorrow.find_element_by_css_selector('#close-cc-bar').click()
+                tomorrow_token = driver_tomorrow.find_element_by_css_selector('#mrows > td > span')
+                ActionChains(driver_tomorrow).move_to_element(tomorrow_token).click(tomorrow_token).perform()
             except Exception:
                 sleep(3)
                 break
