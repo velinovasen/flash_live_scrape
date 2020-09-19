@@ -15,7 +15,11 @@ class Predictions:
 
     REGEX = {
         "both_teams": r'[t]\=\"(.{1,60})[ ][v][s][ ](.{1,60})\"[ ]',
-        "date_and_time": r'\"\>(\d{2}\/\d{1,2}\/\d{4})[ ](\d{1,2}\:\d{1,2})\<\/'
+        "date_and_time": r'\"\>(\d{2}\/\d{1,2}\/\d{4})[ ](\d{1,2}\:\d{1,2})\<\/',
+        "probabilities": r'\>(\d{1,2})\<\/([t]|[b])',
+        "prediction": r'[r]\"\>([A-z0-9])\<\/',
+        "score_prediction": r'\"\>(\d{1,2}[ ]\-[ ]\d{1,2})\<\/',
+        "average_goals": r'[y]\"\>(\d{1,3}\.\d{1,2})\<\/'
     }
 
     def connect_the_database(self):
@@ -31,7 +35,7 @@ class Predictions:
     def open_the_browsers(self):
         # OPEN THE WEBSITE AND WORK WITH IT
         options = ChromeOptions()
-        options.headless = False  # IF YOU WANT TO SEE THE BROWSER -> FALSE
+        options.headless = True  # IF YOU WANT TO SEE THE BROWSER -> FALSE
         driver = Chrome(options=options, executable_path='C://Windows/chromedriver.exe')
         driver_tomorrow = Chrome(options=options, executable_path='C://Windows/chromedriver.exe')
         driver.get(self.WEB_LINKS['football_today'])
@@ -95,6 +99,25 @@ class Predictions:
                 print(f"{date} - {time}")
             except AttributeError:
                 pass
+
+            # PROBABILITIES
+            probabilities = re.findall(self.REGEX["probabilities"], str(game))
+            home_prob, draw_prob, away_prob = probabilities[0][0], probabilities[1][0], probabilities[2][0]
+            print(f"{home_prob} _ {draw_prob} _ {away_prob}")
+
+            # PREDICTION SIGN
+            prediction_sign = re.search(self.REGEX["prediction"], str(game)).group(1)
+            print(f"{prediction_sign}")
+
+            # SCORE PREDICTION
+            score_prediction = re.search(self.REGEX["score_prediction"], str(game)).group(1)
+            print(f"{score_prediction}")
+
+            # FIND AVERAGE GOALS PER GAME
+            average_goals = re.search(self.REGEX["average_goals"], str(game)).group(1)
+            print(f"{average_goals}")
+
+            # GET THE ODDS
 
     def scrape(self):
 
