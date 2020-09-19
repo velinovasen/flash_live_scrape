@@ -14,7 +14,8 @@ class Predictions:
     }
 
     REGEX = {
-        "both_teams": r'[t]\=\"(.{1,60})[ ][v][s][ ](.{1,60})\"[ ]'
+        "both_teams": r'[t]\=\"(.{1,60})[ ][v][s][ ](.{1,60})\"[ ]',
+        "date_and_time": r'\"\>(\d{2}\/\d{1,2}\/\d{4})[ ](\d{1,2}\:\d{1,2})\<\/'
     }
 
     def connect_the_database(self):
@@ -30,7 +31,7 @@ class Predictions:
     def open_the_browsers(self):
         # OPEN THE WEBSITE AND WORK WITH IT
         options = ChromeOptions()
-        options.headless = True  # IF YOU WANT TO SEE THE BROWSER -> FALSE
+        options.headless = False  # IF YOU WANT TO SEE THE BROWSER -> FALSE
         driver = Chrome(options=options, executable_path='C://Windows/chromedriver.exe')
         driver_tomorrow = Chrome(options=options, executable_path='C://Windows/chromedriver.exe')
         driver.get(self.WEB_LINKS['football_today'])
@@ -85,6 +86,15 @@ class Predictions:
                 print(f"{home_team} - {away_team}")
             except AttributeError:
                 continue
+
+            # FIND THE TIME
+            date_and_time = re.search(self.REGEX["date_and_time"], str(game))
+            try:
+                date = date_and_time.group(1)
+                time = date_and_time.group(2)
+                print(f"{date} - {time}")
+            except AttributeError:
+                pass
 
     def scrape(self):
 
