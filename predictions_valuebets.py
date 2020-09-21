@@ -63,6 +63,13 @@ class ValueBets:
             # STORE ALL THE ITEMS
             items = {}
 
+            # FIND THE TEAMS
+            try:
+                items["home"] = re.search(self.REGEX["home"], str(game)).group(1)
+                items["away"] = re.search(self.REGEX["away"], str(game)).group(1)
+            except AttributeError:
+                continue
+
             # FIND DATE AND TIME
             try:
                 date_and_time = re.search(self.REGEX["date_and_time"], str(game))
@@ -71,13 +78,6 @@ class ValueBets:
             except AttributeError:
                 pass
 
-            # FIND THE TEAMS
-            try:
-                items["home"] = re.search(self.REGEX["home"], str(game)).group(1)
-                items["away"] = re.search(self.REGEX["away"], str(game)).group(1)
-            except AttributeError:
-                continue
-
             # FIND THE PROBABILITIES
             probabilities = re.findall(self.REGEX["probabilities"], str(game))
             items["home_prob"] = probabilities[0][0]
@@ -85,20 +85,26 @@ class ValueBets:
             items["away_prob"] = probabilities[2][0]
 
             # FIND THE PREDICTION
-            items["prediction"] = re.search(self.REGEX["prediction"], str(game))
+            items["prediction"] = re.search(self.REGEX["prediction"], str(game)).group(1)
 
             # FIND THE ODD
-            items["odd_for_prediction"] = re.search(self.REGEX["odd_for_prediction"], str(game))
+            items["odd_for_prediction"] = re.search(self.REGEX["odd_for_prediction"], str(game)).group(1)
 
             # FIND THE VALUE PERCENT
-            items["value_percent"] = re.search(self.REGEX["value_percent"], str(game))
+            items["value_percent"] = re.search(self.REGEX["value_percent"], str(game)).group(1)
 
             # FIND THE ODDS
             try:
                 odds = re.findall(self.REGEX["all_odds"], str(game))
-                print(odds)
+                items["home_odds"] = odds[0]
+                items["draw_odds"] = odds[1]
+                items["away_odds"] = odds[2]
             except AttributeError:
-                print(str(game))
+                pass
+
+            print(items)
+
+
 
 scpr = ValueBets()
 scpr.scrape()
