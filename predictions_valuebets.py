@@ -14,7 +14,7 @@ class ValueBets:
     REGEX = {
         "home": r'[e][T][e][a][m]\"\>\<[s][p][a][n]\>(.{1,60})\<\/[s][p][a][n]\>\<\/',
         "away": r'[y][T][e][a][m]\"\>\<[s][p][a][n]\>(.{1,60})\<\/[s][p][a][n]\>\<\/[s]',
-        "date_and_time": r'\"\>(\d{2}\/\d{1,2}\/\d{4})[ ](\d{1,2}\:\d{1,2})\<\/',
+        "date_and_time": r'\"\>(\d{1,2}\/\d{1,2}\/\d{4})[ ](\d{1,2}\:\d{1,2})\<\/',
         "probabilities": r'\>(\d{1,2})\<\/([t]|[b])',
         "prediction": r'[t]\"\>([A-z0-9])\<\/',
         "odd_for_prediction": r'\;\"\>(\d{1,3}\.\d{1,2})\<\/',
@@ -23,14 +23,21 @@ class ValueBets:
     }
 
     def scrape(self):
-    #     # OPEN THE BROWSER
-    #     driver = self.open_the_browser()
-    #
-    #     # GET THE HTML DATA
-    #     all_games = self.get_the_data(driver)
+        # CONNECT THE DATABASE
+        connector, cursor = self.connect_the_database()
+
+        # OPEN THE BROWSER
+        driver = self.open_the_browser()
+
+        # GET THE HTML DATA
+        all_games = self.get_the_data(driver)
 
         # GET THE GAMES FROM THE DATA
-        self.clean_data(self.get_the_data(self.open_the_browser()))
+        self.clean_data(all_games, cursor)
+
+        connector.commit()
+        cursor.close()
+        connector.close()
 
     def open_the_browser(self):
         options = ChromeOptions()
@@ -41,7 +48,7 @@ class ValueBets:
         driver.find_element_by_css_selector('#close-cc-bar').click()
         return driver
 
-    def clean_data(self, all_games):
+    def clean_data(self, all_games, cursor):
 
         for game in all_games:
             # STORE ALL THE ITEMS
@@ -80,16 +87,17 @@ class ValueBets:
             # FIND THE ODDS
             try:
                 odds = re.findall(self.REGEX["all_odds"], str(game))
-                items["home_odds"] = odds[0]
-                items["draw_odds"] = odds[1]
-                items["away_odds"] = odds[2]
+                items["home_odd"] = odds[0]
+                items["draw_odd"] = odds[1]
+                items["away_odd"] = odds[2]
             except AttributeError:
-                items["home_odds"], items["draw_odds"], items["away_odds"] = ['-', '-', '-']
+                items["home_odd"], items["draw_odd"], items["away_odd"] = ['-', '-', '-']
 
-            print(items)
+            self.database_append(cursor, items)
+            #print(items)
 
     @staticmethod
-    def get_the_data(self, driver):
+    def get_the_data(driver):
         # GET THE HTML
         html = driver.execute_script('return document.documentElement.outerHTML;')
 
@@ -105,6 +113,28 @@ class ValueBets:
         all_games += [list(game) for game in matches_two]
         return all_games
 
+    @staticmethod
+    def connect_the_database():
+        # CONNECT THE DATABASE
+        connector = sqlite3.connect('games-db')
+        cursor = connector.cursor()
+        cursor.execute("DROP TABLE IF EXISTS ValueBets")
+        cursor.execute('CREATE TABLE ValueBets(date TEXT, time TEXT, home_team TEXT, away_team TEXT,'
+                       ' home_prob DECIMAL, draw_prob DECIMAL, away_prob DECIMAL, prediction TEXT,'
+                       ' odds_for_prediction REAL, home_odd REAL, draw_odd REAL, away_odd REAL, value_percent TEXT)')
+        return connector, cursor
+
+    @staticmethod
+    def database_append(cursor, items):
+
+        cursor.execute('INSERT INTO ValueBets(date, time, home_team, away_team, home_prob, draw_prob,'
+                       ' away_prob, prediction, odds_for_prediction, home_odd, draw_odd,'
+                       ' away_odd, value_percent) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,?)',
+                       (items["date"], items["time"], items["home"], items["away"],
+                        items["home_prob"], items["draw_prob"], items["away_prob"],
+                        items["prediction"], items["odd_for_prediction"],
+                        items["home_odd"], items["draw_odd"],
+                        items["away_odd"], items["value_percent"]))
 
 
 scpr = ValueBets()

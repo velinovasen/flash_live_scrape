@@ -14,7 +14,7 @@ class Predictions:
 
     REGEX = {
         "both_teams": r'[t]\=\"(.{1,60})[ ][v][s][ ](.{1,60})\"[ ]',
-        "date_and_time": r'\"\>(\d{2}\/\d{1,2}\/\d{4})[ ](\d{1,2}\:\d{1,2})\<\/',
+        "date_and_time": r'\"\>(\d{1,2}\/\d{1,2}\/\d{4})[ ](\d{1,2}\:\d{1,2})\<\/',
         "probabilities": r'\>(\d{1,2})\<\/([t]|[b])',
         "prediction": r'[r]\"\>([A-z0-9])\<\/',
         "score_prediction": r'\"\>(\d{1,2}[ ]\-[ ]\d{1,2})\<\/',
