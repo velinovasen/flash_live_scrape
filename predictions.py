@@ -21,7 +21,7 @@ class Predictions:
         "average_goals": r'[y]\"\>(\d{1,3}\.\d{1,2})\<\/',
         "temperature": r'[s]\"\>(\d{1,2}.{1})\<\/',
         "odds_for_prediction": r'\;\"\>(\d{1,2}\.\d{1,2})\<\/',
-        "all_odds": r'[n]\>(\d{1,3}\.\d{1,2})\<\/'
+        "all_odds": r'[n]\>(\d{1,3}\.\d{1,2})\<\/',
     }
 
     def scrape(self):
@@ -48,7 +48,7 @@ class Predictions:
     def open_the_browsers(self):
         # OPEN THE WEBSITE AND WORK WITH IT
         options = ChromeOptions()
-        options.headless = True  # IF YOU WANT TO SEE THE BROWSER -> FALSE
+        options.headless = False  # IF YOU WANT TO SEE THE BROWSER -> FALSE
         driver = Chrome(options=options, executable_path='C://Windows/chromedriver.exe')
         driver_tomorrow = Chrome(options=options, executable_path='C://Windows/chromedriver.exe')
         driver.get(self.WEB_LINKS['football_today'])
@@ -79,7 +79,7 @@ class Predictions:
             # PROBABILITIES
             probabilities = re.findall(self.REGEX["probabilities"], str(game))
             items['home_prob'], items['draw_prob'], items['away_prob'] = probabilities[0][0], probabilities[1][0], \
-                                                                         probabilities[2][0]
+                                                                                              probabilities[2][0]
 
             # PREDICTION SIGN
             items['prediction_sign'] = re.search(self.REGEX["prediction"], str(game)).group(1)
@@ -149,10 +149,10 @@ class Predictions:
         # WORK WITH THE DATA
         today_soup = bs4.BeautifulSoup(html_today, 'html.parser')
         tomorrow_soup = bs4.BeautifulSoup(html_tomorrow, 'html.parser')
-        matches_one_today = today_soup.find_all(class_=re.compile('tr_0'))
-        matches_two_today = today_soup.find_all(class_=re.compile('tr_1'))
-        matches_one_tomorrow = tomorrow_soup.find_all(class_=re.compile('tr_0'))
-        matches_two_tomorrow = tomorrow_soup.find_all(class_=re.compile('tr_1'))
+        matches_one_today = today_soup.find_all(class_='tr_0')
+        matches_two_today = today_soup.find_all(class_='tr_1')
+        matches_one_tomorrow = tomorrow_soup.find_all(class_='tr_0')
+        matches_two_tomorrow = tomorrow_soup.find_all(class_='tr_1')
         all_games = []
         all_games += [list(game) for game in matches_one_today] + [list(game) for game in matches_two_today]
         all_games += [list(game) for game in matches_one_tomorrow] + [list(game) for game in matches_two_tomorrow]
@@ -168,6 +168,5 @@ class Predictions:
                         items['score_prediction'], items['average_goals'], items['odds_for_prediction'],
                         items['home_odd'], items['draw_odd'], items['away_odd'], items['temperature']))
 
-
-scraper = Predictions()
-scraper.scrape()
+# scraper = Predictions()
+# scraper.scrape()
