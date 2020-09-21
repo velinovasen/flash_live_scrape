@@ -38,24 +38,8 @@ class ValueBets:
         driver = Chrome(options=options, executable_path='C://Windows/chromedriver.exe')
         driver.get(self.WEB_LINKS["football"])
         sleep(3)
-        #driver.find_element_by_css_selector('#close-cc-bar').click()
+        driver.find_element_by_css_selector('#close-cc-bar').click()
         return driver
-
-    def get_the_data(self, driver):
-        # GET THE HTML
-        html = driver.execute_script('return document.documentElement.outerHTML;')
-
-        # CLOSE THE BROWSER
-        driver.close()
-
-        # WORK WITH THE DATA
-        soup = bs4.BeautifulSoup(html, 'html.parser')
-        matches_one = soup.find_all(class_='tr_1')
-        matches_two = soup.find_all(class_=re.compile('tr_0'))
-        all_games = []
-        all_games += [list(game) for game in matches_one]
-        all_games += [list(game) for game in matches_two]
-        return all_games
 
     def clean_data(self, all_games):
 
@@ -100,9 +84,26 @@ class ValueBets:
                 items["draw_odds"] = odds[1]
                 items["away_odds"] = odds[2]
             except AttributeError:
-                pass
+                items["home_odds"], items["draw_odds"], items["away_odds"] = ['-', '-', '-']
 
             print(items)
+
+    @staticmethod
+    def get_the_data(self, driver):
+        # GET THE HTML
+        html = driver.execute_script('return document.documentElement.outerHTML;')
+
+        # CLOSE THE BROWSER
+        driver.close()
+
+        # WORK WITH THE DATA
+        soup = bs4.BeautifulSoup(html, 'html.parser')
+        matches_one = soup.find_all(class_='tr_1')
+        matches_two = soup.find_all(class_=re.compile('tr_0'))
+        all_games = []
+        all_games += [list(game) for game in matches_one]
+        all_games += [list(game) for game in matches_two]
+        return all_games
 
 
 
