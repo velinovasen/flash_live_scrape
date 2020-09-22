@@ -48,7 +48,7 @@ class Predictions:
     def open_the_browsers(self):
         # OPEN THE WEBSITE AND WORK WITH IT
         options = ChromeOptions()
-        options.headless = False  # IF YOU WANT TO SEE THE BROWSER -> FALSE
+        options.headless = True  # IF YOU WANT TO SEE THE BROWSER -> FALSE
         driver = Chrome(options=options, executable_path='C://Windows/chromedriver.exe')
         driver_tomorrow = Chrome(options=options, executable_path='C://Windows/chromedriver.exe')
         driver.get(self.WEB_LINKS['football_today'])
@@ -115,7 +115,7 @@ class Predictions:
         cursor = connector.cursor()
         cursor.execute("DROP TABLE IF EXISTS Predictions")
         cursor.execute('CREATE TABLE Predictions(date TEXT, time TEXT, home_team TEXT, away_team TEXT,'
-                       ' home_prob DECIMAL, draw_prob DECIMAL, away_prob DECIMAL, bet_sign DECIMAL,'
+                       ' home_prob DECIMAL, draw_prob DECIMAL, away_prob DECIMAL, bet_sign TEXT,'
                        ' score_predict TEXT, avg_goals REAL, odds_predict REAL,'
                        ' home_odd REAL, draw_odd REAL, away_odd REAL, temp TEXT)')
         return connector, cursor
@@ -168,5 +168,5 @@ class Predictions:
                         items['score_prediction'], items['average_goals'], items['odds_for_prediction'],
                         items['home_odd'], items['draw_odd'], items['away_odd'], items['temperature']))
 
-# scraper = Predictions()
-# scraper.scrape()
+scraper = Predictions()
+scraper.scrape()

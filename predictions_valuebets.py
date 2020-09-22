@@ -1,5 +1,4 @@
 import sqlite3
-from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver import Chrome, ChromeOptions
 import bs4
 import re
@@ -12,13 +11,13 @@ class ValueBets:
     }
 
     REGEX = {
-        "home": r'[e][T][e][a][m]\"\>\<[s][p][a][n]\>(.{1,60})\<\/[s][p][a][n]\>\<\/',
-        "away": r'[y][T][e][a][m]\"\>\<[s][p][a][n]\>(.{1,60})\<\/[s][p][a][n]\>\<\/[s]',
+        "home": r'[e][T][e][a][m]\"\>\<[s][p][a][n]\>(.{1,60})\<\/[s][p][a][n]\>\<\/[s][p][a][n]\>\<[s]',
+        "away": r'[y][T][e][a][m]\"\>\<[s][p][a][n]\>(.{1,60})\<\/[s][p][a][n]\>\<\/[s][p][a][n]\>\<[s]',
         "date_and_time": r'\"\>(\d{1,2}\/\d{1,2}\/\d{4})[ ](\d{1,2}\:\d{1,2})\<\/',
         "probabilities": r'\>(\d{1,2})\<\/([t]|[b])',
         "prediction": r'[t]\"\>([A-z0-9])\<\/',
         "odd_for_prediction": r'\;\"\>(\d{1,3}\.\d{1,2})\<\/',
-        "value_percent": r'[b]\>(\d{1,3}\%)',
+        "value_percent": r'[b]\>(\d{1,3})\%',
         "all_odds": r'[n]\>(\d{1,3}\.\d{1,2})\<\/',
     }
 
@@ -41,7 +40,7 @@ class ValueBets:
 
     def open_the_browser(self):
         options = ChromeOptions()
-        options.headless = False  # -> FALSE IF YOU WANT TO SEE THE BROWSER BROWSING
+        options.headless = True  # -> FALSE IF YOU WANT TO SEE THE BROWSER BROWSING
         driver = Chrome(options=options, executable_path='C://Windows/chromedriver.exe')
         driver.get(self.WEB_LINKS["football"])
         sleep(3)
@@ -49,7 +48,6 @@ class ValueBets:
         return driver
 
     def clean_data(self, all_games, cursor):
-
         for game in all_games:
             # STORE ALL THE ITEMS
             items = {}
@@ -121,7 +119,7 @@ class ValueBets:
         cursor.execute("DROP TABLE IF EXISTS ValueBets")
         cursor.execute('CREATE TABLE ValueBets(date TEXT, time TEXT, home_team TEXT, away_team TEXT,'
                        ' home_prob DECIMAL, draw_prob DECIMAL, away_prob DECIMAL, prediction TEXT,'
-                       ' odds_for_prediction REAL, home_odd REAL, draw_odd REAL, away_odd REAL, value_percent TEXT)')
+                       ' odds_for_prediction REAL, home_odd REAL, draw_odd REAL, away_odd REAL, value_percent DECIMAL)')
         return connector, cursor
 
     @staticmethod
@@ -137,5 +135,3 @@ class ValueBets:
                         items["away_odd"], items["value_percent"]))
 
 
-scpr = ValueBets()
-scpr.scrape()

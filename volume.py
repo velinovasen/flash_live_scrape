@@ -12,7 +12,7 @@ class Volume:
         "football": "https://www.bahisanaliz14.com/avrupa-en-cok-oynanan-maclar/"
     }
 
-    def get_volume(self):
+    def scrape(self):
 
         # CONNECTING THE DATABASE
         connector = sqlite3.connect('games-db')
@@ -85,6 +85,3 @@ class Volume:
 
         connector.close()
 
-
-scraper = Volume()
-scraper.get_volume()
