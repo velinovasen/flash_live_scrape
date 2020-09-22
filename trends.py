@@ -17,8 +17,12 @@ class Trends:
 
     def scrape(self):
         driver = self.open_the_browser()
+
         trends_today = self.get_the_data(driver)
+
         self.find_all_trends(trends_today) # TO DO !!!
+
+        items = {}
         while self.click_button(driver):
             pass
 
@@ -46,14 +50,16 @@ class Trends:
 
     @staticmethod
     def click_button(driver):
-        element = driver.find_element_by_css_selector('#body-wrapper > div:nth-child(2) > div:nth-child(3)'
-                                                      ' > div:nth-child(31) > div:nth-child(41) > div >'
-                                                      ' center:nth-child(13) > div > div > a:nth-child(14)')
-        if element.get_attribute('href'):
-            ActionChains(driver).move_to_element(element).click(element).perform()
-            sleep(3)
-            return True
-        return False
+        try:
+            element = driver.find_element_by_css_selector('#body-wrapper > div:nth-child(2) > div:nth-child(3)'
+                                                          ' > div:nth-child(31) > div:nth-child(41) > div >'
+                                                          ' center:nth-child(13) > div > div > a:nth-child(14)')
+            if element.get_attribute('href'):
+                ActionChains(driver).move_to_element(element).click(element).perform()
+                sleep(3)
+                return True
+        except Exception:
+            return False
 
 
 scrp = Trends()
