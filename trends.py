@@ -12,20 +12,30 @@ class Trends:
     }
 
     REGEX = {
-
+        "find_pages": '[r][t]\=(\d+)'
     }
 
     def scrape(self):
         driver = self.open_the_browser()
 
-        trends_today = self.get_the_data(driver)
+        #trends_today = self.get_the_data(driver)
 
-        self.find_all_trends(trends_today) # TO DO !!!
+        all_trends_today = []
 
-        items = {}
-        while self.click_button(driver):
-            pass
+        final_href_token = driver.find_element_by_link_text('End').get_attribute('href')
+        final_href = re.search(self.REGEX['find_pages'], final_href_token).group(1)
+        current_page_href = 0
+        base_href = 'https://www.forebet.com/en/trends?start='
+        while current_page_href <= int(final_href):
+            current_href = base_href + str(current_page_href)
+            print(current_href)
+            driver.get(current_href)
+            html = driver.execute_script('return document.documentElement.outerHTML;')
+            soup = bs4.BeautifulSoup(html, 'html.parser')
+            trends_tokens = soup.find_all(class_='short_trends')
+            all_trends_today += [print(list(trend)) for trend in trends_tokens]
 
+            current_page_href += 35
         driver.close()
 
     def open_the_browser(self):
@@ -44,23 +54,17 @@ class Trends:
     def get_the_data(driver):
         html = driver.execute_script('return document.documentElement.outerHTML;')
         soup = bs4.BeautifulSoup(html, 'html.parser')
-        trends_today = soup.find_all(class_='contain_trends')
+        trends_today = soup.find_all(class_='short_trends')
         [print(list(trend)) for trend in trends_today]
         return trends_today
 
     @staticmethod
     def click_button(driver):
         try:
-            element = driver.find_element_by_css_selector('#body-wrapper > div:nth-child(2) > div:nth-child(3)'
-                                                          ' > div:nth-child(31) > div:nth-child(41) > div >'
-                                                          ' center:nth-child(13) > div > div > a:nth-child(14)')
-            if element.get_attribute('href'):
-                ActionChains(driver).move_to_element(element).click(element).perform()
-                sleep(3)
-                return True
+            element = driver.find_element_by_link_text('Next')
+            return element
         except Exception:
             return False
-
 
 scrp = Trends()
 scrp.scrape()
