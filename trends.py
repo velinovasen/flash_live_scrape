@@ -19,18 +19,20 @@ class Trends:
 
         all_trends = self.get_the_trends(driver)
 
-        for trend in all_trends:
-            trend = str(trend)
-            print(str(trend))
-            clean_words = []
-            open_sentence_tokens = trend.split('>')
-            print(open_sentence_tokens)
-            open_sentence = [x for x in open_sentence_tokens]
-            print(open_sentence)
-            for el in open_sentence:
-                clean_words += el.split('<')[0]
-            # print(len(clean_words))
-            # print(clean_words)
+        # for trend in all_trends:
+        #     trend = str(trend)
+        #     #print(str(trend))
+        #     clean_words = []
+        #     final_clean_words = []
+        #     open_sentence_tokens = trend.split('>')
+        #     for el in open_sentence_tokens:
+        #         clean_words.append(el.split('<')[0])
+        #
+        #     tokens = " ".join(clean_words).split(" ")
+        #     final_clean_words.append([x for x in clean_words if x != ' ' and x != ', ' and x != ''])
+        #     final_clean_words = final_clean_words[1:-1]
+        #     print("".join([str(x) for x in final_clean_words]))
+
 
         driver.close()
 
@@ -55,9 +57,20 @@ class Trends:
                 html = driver.execute_script('return document.documentElement.outerHTML;')
                 soup = bs4.BeautifulSoup(html, 'html.parser')
                 trends_tokens = soup.find_all(class_='short_trends')
-                all_trends += [list(trend) for trend in trends_tokens]
+                all_trends += [trend.text for trend in trends_tokens]
 
                 current_page_href += 35
+
+        for trend in all_trends[:2]:
+            letters_tokens = [letter for letter in trend]
+            final = []
+            for idx in range(2, len(letters_tokens) - 1):
+                if letters_tokens[idx].isupper():
+                    if letters_tokens[idx - 1].islower():
+                        final.append(letters_tokens[:idx])
+                        letters_tokens = letters_tokens[idx:]
+            final.append(letters_tokens)
+            print(final)
         [print(trend) for trend in all_trends]
         return all_trends
 
