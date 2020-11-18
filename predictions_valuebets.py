@@ -3,6 +3,7 @@ from selenium.webdriver import Chrome, ChromeOptions
 import bs4
 import re
 from time import sleep
+from webdriver_manager.chrome import ChromeDriverManager
 
 
 class ValueBets:
@@ -12,7 +13,7 @@ class ValueBets:
 
     REGEX = {
         "home": r'[e][T][e][a][m]\"\>\<[s][p][a][n]\>(.{1,60})\<\/[s][p][a][n]\>\<\/[s][p][a][n]\>\<[s]',
-        "away": r'[y][T][e][a][m]\"\>\<[s][p][a][n]\>(.{1,60})\<\/[s][p][a][n]\>\<\/[s][p][a][n]\>\<[s]',
+        "away": r'[y][T][e][a][m]\"\>\<[s][p][a][n]\>(.{1,60})\<\/[s][p][a][n]\>\<\/[s][p][a][n]\>\<\/[a]',
         "date_and_time": r'\"\>(\d{1,2}\/\d{1,2}\/\d{4})[ ](\d{1,2}\:\d{1,2})\<\/',
         "probabilities": r'\>(\d{1,2})\<\/([t]|[b])',
         "prediction": r'[t]\"\>([A-z0-9])\<\/',
@@ -40,8 +41,8 @@ class ValueBets:
 
     def open_the_browser(self):
         options = ChromeOptions()
-        options.headless = True  # -> FALSE IF YOU WANT TO SEE THE BROWSER BROWSING
-        driver = Chrome(options=options, executable_path='C://Windows/chromedriver.exe')
+        options.headless = False  # -> FALSE IF YOU WANT TO SEE THE BROWSER BROWSING
+        driver = Chrome(options=options, executable_path=ChromeDriverManager().install())
         driver.get(self.WEB_LINKS["football"])
         sleep(3)
         driver.find_element_by_css_selector('#close-cc-bar').click()
@@ -49,6 +50,7 @@ class ValueBets:
 
     def clean_data(self, all_games, cursor):
         for game in all_games:
+            print(game)
             # STORE ALL THE ITEMS
             items = {}
 
@@ -135,3 +137,5 @@ class ValueBets:
                         items["away_odd"], items["value_percent"]))
 
 
+vb = ValueBets()
+vb.scrape()

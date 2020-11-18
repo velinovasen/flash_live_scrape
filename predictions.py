@@ -1,6 +1,7 @@
 import sqlite3
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver import Chrome, ChromeOptions
+from webdriver_manager.chrome import ChromeDriverManager
 import bs4
 import re
 from time import sleep
@@ -49,8 +50,8 @@ class Predictions:
         # OPEN THE WEBSITE AND WORK WITH IT
         options = ChromeOptions()
         options.headless = True  # IF YOU WANT TO SEE THE BROWSER -> FALSE
-        driver = Chrome(options=options, executable_path='C://Windows/chromedriver.exe')
-        driver_tomorrow = Chrome(options=options, executable_path='C://Windows/chromedriver.exe')
+        driver = Chrome(options=options, executable_path=ChromeDriverManager().install())
+        driver_tomorrow = Chrome(options=options, executable_path=ChromeDriverManager().install())
         driver.get(self.WEB_LINKS['football_today'])
         driver_tomorrow.get(self.WEB_LINKS['football_tomorrow'])
         sleep(3)
@@ -68,6 +69,8 @@ class Predictions:
                 items['away_team'] = both_teams.group(2)
                 # print(f"{items['home_team']} - {items['away_team']}")
             except AttributeError:
+                continue
+            except ValueError:
                 continue
 
             # FIND THE TIME
@@ -100,12 +103,14 @@ class Predictions:
             try:
                 items['odds_for_prediction'] = re.search(self.REGEX["odds_for_prediction"], str(game)).group(1)
                 all_odds_token = re.findall(self.REGEX["all_odds"], str(game))
+                print(all_odds_token)
                 # IF YOU WANT TO TAKE THE LIVE ODDS (IF LIVE) -> THEY ARE AVAILABLE IN THE FULL all_odds_token
                 items["home_odd"], items["draw_odd"], items["away_odd"] = all_odds_token[:3]
             except AttributeError:
                 items['odds_for_prediction'] = '-'
                 items["home_odd"], items["draw_odd"], items["away_odd"] = ['-', '-', '-']
-
+            except ValueError:
+                continue
             self.database_append(cursor, items)
 
     @staticmethod

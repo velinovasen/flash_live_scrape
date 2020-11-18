@@ -5,34 +5,22 @@ import bs4
 import re
 from time import sleep
 
+from webdriver_manager.chrome import ChromeDriverManager
+
 
 class Trends:
     WEB_LINKS = ['https://m.forebet.com/en/football-tips-and-predictions-for-today/stat-trends?start=',
                  'https://m.forebet.com/en/football-tips-and-predictions-for-tomorrow/stat-trends?start=']
 
     REGEX = {
-        "find_pages": '[r][t]\=(\d+)'
+        "find_pages": r'[r][t]\=(\d+)',
+        "find_prediction": r'[P][r][e][d][i][c][t][i][o][n]\<\/[s][t][r][o][n][g]\>\:[ ](.{1,30})\<\/[p]\>\<'
     }
 
     def scrape(self):
         driver = self.open_the_browser()
 
         all_trends = self.get_the_trends(driver)
-
-        # for trend in all_trends:
-        #     trend = str(trend)
-        #     #print(str(trend))
-        #     clean_words = []
-        #     final_clean_words = []
-        #     open_sentence_tokens = trend.split('>')
-        #     for el in open_sentence_tokens:
-        #         clean_words.append(el.split('<')[0])
-        #
-        #     tokens = " ".join(clean_words).split(" ")
-        #     final_clean_words.append([x for x in clean_words if x != ' ' and x != ', ' and x != ''])
-        #     final_clean_words = final_clean_words[1:-1]
-        #     print("".join([str(x) for x in final_clean_words]))
-
 
         driver.close()
 
@@ -41,7 +29,9 @@ class Trends:
         # OTHER DAYS(Weekend, Serie A, Premier League, etc.) BY JUST ADDING THEIR
         # LINKS INTO WEB_LINKS
 
-        all_trends = []
+        full_trends_list = []
+        all_events = []
+        all_predictions = []
         for link in self.WEB_LINKS:
             driver.get(link)
             sleep(3)
@@ -57,27 +47,56 @@ class Trends:
                 html = driver.execute_script('return document.documentElement.outerHTML;')
                 soup = bs4.BeautifulSoup(html, 'html.parser')
                 trends_tokens = soup.find_all(class_='short_trends')
-                all_trends += [trend.text for trend in trends_tokens]
-
+                all_events += [trend.text for trend in trends_tokens]
                 current_page_href += 35
 
-        for trend in all_trends[:2]:
-            letters_tokens = [letter for letter in trend]
-            final = []
-            for idx in range(2, len(letters_tokens) - 1):
-                if letters_tokens[idx].isupper():
-                    if letters_tokens[idx - 1].islower():
-                        final.append(letters_tokens[:idx])
-                        letters_tokens = letters_tokens[idx:]
-            final.append(letters_tokens)
-            print(final)
-        [print(trend) for trend in all_trends]
-        return all_trends
+
+                # div_trends = soup.find_all(class_='contain_trends')
+                # for div in div_trends:
+                #     prediction = re.search(self.REGEX['find_prediction'], str(div))
+                #     if prediction:
+                #         all_predictions.append(prediction.group(1))
+                # all_predictions = []
+                # counter = 5
+                # while counter < 100:
+                #     try:
+                #         selector = f'#body-wrapper > div:nth-child(2) > div:nth-child(3) > div:nth-child({counter}) > p'
+                #         #selector2 = f'#body-wrapper > div:nth-child(2) > div:nth-child(3) > div:nth-child(21) > p'
+                #         prediction_tokens = soup.select(selector)
+                #         if 'Prediction' in str(prediction_tokens):
+                #         #prediction_tokens2 = soup.select(selector2)
+                #         #if prediction_tokens:
+                #             all_predictions.append(prediction_tokens)
+                #         # elif prediction_tokens2:
+                #         #     all_predictions.append(prediction_tokens2)
+                #
+                #     except Exception:
+                #         pass
+                #     counter += 1
+                #
+                # print([ev for ev in all_predictions if all_predictions.index(ev) % 2 != 0])
+
+        for event in all_events:
+            print(event)
+            all_trends = re.split(r'[a-z][A-Z]+', event)
+            all_separators = re.finditer(r'[a-z][A-Z]+', event)
+            counter = 0
+            for match in all_separators:
+                last_letter, first_letter = match.group(0)[0], match.group(0)[1]
+                try:
+                    all_trends[counter] += last_letter
+                    all_trends[counter + 1] = first_letter + all_trends[counter + 1]
+                except IndexError:
+                    pass
+                counter += 1
+            full_trends_list += [all_trends]
+        [print(game) for game in full_trends_list]
+        return full_trends_list
 
     def open_the_browser(self):
         options = ChromeOptions()
         options.headless = False
-        driver = Chrome(options=options, executable_path='C://Windows/chromedriver.exe')
+        driver = Chrome(options=options, executable_path=ChromeDriverManager().install())
         sleep(2)
         return driver
 
