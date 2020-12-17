@@ -118,9 +118,10 @@ with open('oddsportal_data.json', 'r') as json_data:
 print(games)
 
 today_date = str(date.today())
+yesterday_date = str(get_yesterday_date(for_key=True))
 
 today_results = results_data[today_date]
-
+yesterday_results = results_data[yesterday_date]
 finished = []
 for key in today_results.keys():
     try:
@@ -139,6 +140,27 @@ for key in today_results.keys():
         games[today_date][key]['winner'] = winner
 
         finished.append(games[today_date][key])
+
+    except KeyError:
+        pass
+
+for key in yesterday_results.keys():
+    try:
+        tokens = yesterday_results[key].split(':')
+        home_sc, away_sc = int(tokens[0]), int(tokens[1])
+        winner = ''
+        if home_sc > away_sc:
+            winner = 1
+        elif home_sc < away_sc:
+            winner = 2
+        else:
+            winner = 0
+
+        games[yesterday_date][key]['score'] = today_results[key]
+        games[yesterday_date][key]['status'] = 'finished'
+        games[yesterday_date][key]['winner'] = winner
+
+        finished.append(games[yesterday_date][key])
 
     except KeyError:
         pass

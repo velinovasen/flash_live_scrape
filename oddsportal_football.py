@@ -1,6 +1,7 @@
 import json
 import re
 from datetime import timedelta, datetime, date
+from json import JSONDecodeError
 from time import sleep
 from selenium.webdriver import ChromeOptions, Chrome
 from bs4 import BeautifulSoup
@@ -131,10 +132,14 @@ class TomorrowGames:
 
 
 with open('oddsportal_data.json', 'r') as file_token:
-    token = json.load(file_token)
+    try:
+        token = json.load(file_token)
+    except JSONDecodeError:
+        token = {}
+
 
 tomorrow_date = get_tomorrow_date('not link', for_key=True)
-
+today_date = str(date.today())
 print(token)
 if get_tomorrow_date('not link', for_key=True) in token:
     print(get_tomorrow_date('not link', for_key=True))
@@ -144,13 +149,13 @@ if get_tomorrow_date('not link', for_key=True) in token:
 else:
     tg = TomorrowGames()
     all_data = tg.scrape()
-    if tomorrow_date not in token:
-        token[tomorrow_date] = all_data[get_tomorrow_date(tomorrow_date)]
-        with open('oddsportal_data.json', 'w') as file_token:
-            json.dump(all_data, file_token, indent=2)
+    print(all_data[tomorrow_date])
+    print(all_data[today_date])
+    if not str(date.today()) in token:
+        token[today_date] = all_data[today_date]
+    if not tomorrow_date in token:
+        token[tomorrow_date] = all_data[tomorrow_date]
+    with open('oddsportal_data.json', 'w') as fp:
+        json.dump(token, fp, indent=2)
 
-
-# f = open('oddsportal_data.json', 'w')
-# dump(all_data, f, indent=2)
-#
-# print(all_data)
+# TO FINISH THIS PIECE OF S H I T
